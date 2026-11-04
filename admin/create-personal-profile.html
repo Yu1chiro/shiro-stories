@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Profiles - Admin Scrapbook</title>
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script>
+        tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'] }, colors: { sblue: { 50: '#E3F2FD', 200: '#90CAF9', 500: '#2196F3', 900: '#0D47A1' }, rpurple: { 100: '#FFC0DE', 300: '#ED96D7', 500: '#C654C3', 700: '#8E1EA2' } } } } }
+    </script>
+    <style>
+        .ql-editor { min-height: 200px; font-size: 11pt; font-family: 'Inter', sans-serif; }
+        #toast-container { position: fixed; top: 1rem; right: 1rem; z-index: 100; display: flex; flex-direction: column; gap: 0.5rem; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800 flex h-screen overflow-hidden">
+    
+    <div id="toast-container"></div>
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-20 hidden lg:hidden"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-white border-r border-sblue-100 z-30 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 flex flex-col">
+        <div class="h-16 flex items-center justify-center border-b border-sblue-100">
+            <h2 class="text-xl font-bold text-sblue-900">Scrapbook Admin</h2>
+        </div>
+        <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+            <a href="/admin/dashboard" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-sblue-50 hover:text-sblue-600 rounded-lg font-medium transition-colors"><i class="fas fa-home w-5 text-center"></i> Dashboard</a>
+            <a href="/admin/create-personal-profile" class="flex items-center gap-3 px-3 py-2.5 bg-sblue-50 text-sblue-600 rounded-lg font-medium"><i class="fas fa-user-circle w-5 text-center"></i> Personal Profile</a>
+            <a href="/admin/create-stories" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-sblue-50 hover:text-sblue-600 rounded-lg font-medium transition-colors"><i class="fas fa-book-open w-5 text-center"></i> Stories</a>
+            <a href="/admin/create-moments" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-sblue-50 hover:text-sblue-600 rounded-lg font-medium transition-colors"><i class="fas fa-star w-5 text-center"></i> Moments</a>
+            <a href="/admin/create-gallery" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-sblue-50 hover:text-sblue-600 rounded-lg font-medium transition-colors"><i class="fas fa-images w-5 text-center"></i> Gallery</a>
+            <a href="/admin/gallery-video" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-sblue-50 hover:text-sblue-600 rounded-lg font-medium transition-colors"><i class="fas fa-video w-5 text-center"></i> Videos</a>
+            <a href="/admin/create-letters" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-sblue-50 hover:text-sblue-600 rounded-lg font-medium transition-colors"><i class="fas fa-envelope-open-text w-5 text-center"></i> Letters</a>
+            <a href="/admin/create-song" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-sblue-50 hover:text-sblue-600 rounded-lg font-medium transition-colors"><i class="fas fa-music w-5 text-center"></i> Songs</a>
+        </nav>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-full lg:ml-64 w-full relative">
+        <header class="h-16 bg-white border-b border-sblue-100 flex items-center justify-between px-4 sm:px-6 z-10">
+            <div class="flex items-center gap-4">
+                <button id="mobile-menu-btn" class="lg:hidden text-gray-600 text-xl focus:outline-none"><i class="fas fa-bars"></i></button>
+                <h1 class="text-xl font-bold text-sblue-900 hidden sm:block">Manage Profiles</h1>
+            </div>
+            <button id="btn-add-profile" onclick="openFormModal()" class="bg-sblue-500 hover:bg-sblue-900 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm"><i class="fas fa-plus mr-1"></i> Add Profile</button>
+        </header>
+
+        <div class="flex-1 overflow-auto p-4 sm:p-6">
+            <div id="max-warning" class="hidden mb-4 bg-yellow-50 text-yellow-700 p-4 rounded-lg text-sm font-medium border border-yellow-200">
+                <i class="fas fa-info-circle mr-2"></i> Maximum of 2 profiles reached. Delete an existing profile to create a new one.
+            </div>
+            <div class="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 border-b border-gray-100 text-xs uppercase text-gray-500 tracking-wider">
+                            <th class="p-4 w-20">Photo</th>
+                            <th class="p-4">Name</th>
+                            <th class="p-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body" class="text-sm divide-y divide-gray-100">
+                        <tr><td colspan="3" class="p-8 text-center text-gray-400"><i class="fas fa-spinner fa-spin text-2xl"></i></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Form Modal Overlay -->
+        <div id="form-modal" class="fixed inset-0 bg-black/60 z-50 hidden flex justify-end">
+            <div class="bg-white w-full max-w-2xl h-full flex flex-col shadow-2xl overflow-hidden relative">
+                <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                    <h3 id="modal-title" class="text-xl font-bold text-gray-800">Add Profile</h3>
+                    <button onclick="closeFormModal()" class="text-gray-400 hover:text-red-500 text-2xl"><i class="fas fa-times"></i></button>
+                </div>
+                
+                <div class="flex-1 overflow-y-auto p-6">
+                    <form id="data-form" class="space-y-5" onsubmit="event.preventDefault();">
+                        <input type="hidden" id="edit-id">
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Name <span class="text-red-500">*</span></label>
+                            <input type="text" id="input-name" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-sblue-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Photo <span id="photo-req" class="text-red-500">*</span></label>
+                            <input type="file" id="input-photo" accept="image/png, image/jpeg, image/jpg, image/webp" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-sblue-50 file:text-sblue-600 hover:file:bg-sblue-100 cursor-pointer">
+                            <div id="photo-preview-container" class="mt-2 hidden">
+                                <img id="photo-preview" src="" class="h-32 w-32 object-cover rounded-full border-4 border-gray-100">
+                            </div>
+                        </div>
+
+                        <!-- Tag Inputs -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Likes <span class="text-gray-400 text-xs font-normal ml-2">(Type & press Enter)</span></label>
+                            <div class="border border-gray-300 rounded-lg p-2 flex flex-wrap gap-2 focus-within:ring-2 focus-within:ring-sblue-500 bg-white">
+                                <div id="likes-container" class="flex flex-wrap gap-2"></div>
+                                <input type="text" id="input-likes" class="flex-1 outline-none min-w-[120px] text-sm" placeholder="Add likes...">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Hobbies <span class="text-gray-400 text-xs font-normal ml-2">(Type & press Enter)</span></label>
+                            <div class="border border-gray-300 rounded-lg p-2 flex flex-wrap gap-2 focus-within:ring-2 focus-within:ring-sblue-500 bg-white">
+                                <div id="hobbies-container" class="flex flex-wrap gap-2"></div>
+                                <input type="text" id="input-hobbies" class="flex-1 outline-none min-w-[120px] text-sm" placeholder="Add hobbies...">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Profile Description <span class="text-red-500">*</span></label>
+                            <div id="quill-editor" class="bg-white"></div>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="p-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
+                    <button type="button" onclick="closeFormModal()" class="px-5 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 font-medium">Cancel</button>
+                    <button type="button" onclick="saveData()" id="btn-save" class="px-5 py-2 rounded-lg bg-sblue-500 hover:bg-sblue-900 text-white font-medium flex items-center gap-2">
+                        <i class="fas fa-save"></i> Save Profile
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Modal -->
+        <div id="confirm-modal" class="fixed inset-0 bg-black/60 z-[60] hidden items-center justify-center p-4">
+            <div class="bg-white rounded-xl shadow-xl w-full max-w-sm overflow-hidden text-center">
+                <div class="p-6">
+                    <div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl"><i class="fas fa-trash-alt"></i></div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Delete Profile?</h3>
+                </div>
+                <div class="bg-gray-50 px-6 py-4 flex gap-3 justify-end">
+                    <button onclick="closeConfirmModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-600">Cancel</button>
+                    <button id="btn-confirm-delete" class="px-4 py-2 bg-red-500 text-white rounded-lg">Delete</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <script>
+        const toast = (msg, isErr=false) => {
+            const t = document.createElement('div');
+            t.className = `px-4 py-3 rounded-lg shadow-lg text-white text-sm font-medium transition-opacity duration-300 flex items-center gap-2 ${isErr ? 'bg-red-600' : 'bg-green-600'}`;
+            t.innerHTML = `<i class="fas ${isErr ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${msg}`;
+            document.getElementById('toast-container').appendChild(t);
+            setTimeout(() => { t.style.opacity='0'; setTimeout(()=>t.remove(), 300); }, 3000);
+        };
+
+        const fileToBase64 = (file) => new Promise((resolve, reject) => { 
+            const reader = new FileReader(); 
+            reader.readAsDataURL(file); 
+            reader.onload = () => resolve(reader.result); 
+        });
+
+        // Mobile Menu
+        document.getElementById('mobile-menu-btn').addEventListener('click', () => { 
+            document.getElementById('sidebar').classList.remove('-translate-x-full'); 
+            document.getElementById('sidebar-overlay').classList.remove('hidden'); 
+        });
+        document.getElementById('sidebar-overlay').addEventListener('click', () => { 
+            document.getElementById('sidebar').classList.add('-translate-x-full'); 
+            document.getElementById('sidebar-overlay').classList.add('hidden'); 
+        });
+
+        // Quill
+        const quill = new Quill('#quill-editor', { 
+            theme: 'snow', 
+            modules: { toolbar: [ ['bold', 'italic', 'underline'], [{ 'list': 'bullet' }], ['clean'] ] } 
+        });
+
+        // ==========================================
+        // PERBAIKAN: Tags Logic (Likes & Hobbies)
+        // ==========================================
+        let likes = [];
+        let hobbies = [];
+        
+        function renderTags(arr, containerId, colorClass) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = arr.map((tag, i) => `
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-${colorClass}-50 text-${colorClass}-700 text-xs font-medium border border-${colorClass}-200">
+                    ${tag} <button type="button" onclick="removeTag('${containerId}', ${i})" class="hover:text-${colorClass}-900"><i class="fas fa-times"></i></button>
+                </span>
+            `).join('');
+        }
+        
+        window.removeTag = (type, index) => {
+            if(type === 'likes-container') { likes.splice(index, 1); renderTags(likes, 'likes-container', 'sblue'); }
+            else { hobbies.splice(index, 1); renderTags(hobbies, 'hobbies-container', 'rpurple'); }
+        };
+
+        // Memperbaiki Closure Issue dengan melemparkan parameter "type"
+        const setupTagInput = (inputId, containerId, type, colorClass) => {
+            document.getElementById(inputId).addEventListener('keydown', (e) => {
+                if(e.key === 'Enter') {
+                    e.preventDefault();
+                    const val = e.target.value.trim();
+                    if(val) {
+                        if(type === 'likes' && !likes.includes(val)) {
+                            likes.push(val); renderTags(likes, containerId, colorClass);
+                        } else if(type === 'hobbies' && !hobbies.includes(val)) {
+                            hobbies.push(val); renderTags(hobbies, containerId, colorClass);
+                        }
+                        e.target.value = '';
+                    }
+                }
+            });
+        };
+        
+        setupTagInput('input-likes', 'likes-container', 'likes', 'sblue');
+        setupTagInput('input-hobbies', 'hobbies-container', 'hobbies', 'rpurple');
+
+        // ==========================================
+
+        // Image Base64
+        let photoBase64 = null;
+        document.getElementById('input-photo').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if(file) {
+                photoBase64 = await fileToBase64(file);
+                document.getElementById('photo-preview').src = photoBase64;
+                document.getElementById('photo-preview-container').classList.remove('hidden');
+            }
+        });
+
+        // Table & CRUD
+        let totalProfiles = 0;
+        let deleteId = null;
+
+        async function loadData() {
+            try {
+                const res = await fetch(`/api/admin/profiles`);
+                const data = await res.json();
+                if(data.success) {
+                    totalProfiles = data.data.length;
+                    const btnAdd = document.getElementById('btn-add-profile');
+                    const warn = document.getElementById('max-warning');
+                    
+                    if(totalProfiles >= 2) { btnAdd.classList.add('hidden'); warn.classList.remove('hidden'); }
+                    else { btnAdd.classList.remove('hidden'); warn.classList.add('hidden'); }
+                    
+                    document.getElementById('table-body').innerHTML = data.data.length ? data.data.map(item => `
+                        <tr class="border-b border-gray-50 hover:bg-gray-50/50">
+                            <td class="p-4"><img src="${item.photo_url}" class="w-12 h-12 rounded-full object-cover border border-gray-200"></td>
+                            <td class="p-4 font-bold text-gray-800">${item.name}</td>
+                            <td class="p-4 text-right space-x-2">
+                                <button onclick="editData(${item.id})" class="w-8 h-8 rounded bg-sblue-50 text-sblue-600 hover:bg-sblue-100"><i class="fas fa-edit"></i></button>
+                                <button onclick="confirmDelete(${item.id})" class="w-8 h-8 rounded bg-red-50 text-red-600 hover:bg-red-100"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    `).join('') : '<tr><td colspan="3" class="p-8 text-center text-gray-500">No profiles found.</td></tr>';
+                }
+            } catch(e) { toast('Load failed', true); }
+        }
+
+        const modal = document.getElementById('form-modal');
+        function openFormModal() {
+            document.getElementById('edit-id').value = ''; 
+            document.getElementById('data-form').reset();
+            quill.root.innerHTML = ''; 
+            likes = []; 
+            hobbies = [];
+            renderTags(likes, 'likes-container', 'sblue'); 
+            renderTags(hobbies, 'hobbies-container', 'rpurple');
+            document.getElementById('photo-preview-container').classList.add('hidden');
+            photoBase64 = null;
+            document.getElementById('modal-title').textContent = 'Add Profile';
+            document.getElementById('photo-req').classList.remove('hidden');
+            modal.classList.remove('hidden');
+        }
+
+        function closeFormModal() { modal.classList.add('hidden'); }
+
+        async function editData(id) {
+            try {
+                const res = await fetch(`/api/admin/profiles/${id}`);
+                const data = await res.json();
+                if(data.success) {
+                    const p = data.data;
+                    document.getElementById('edit-id').value = p.id;
+                    document.getElementById('input-name').value = p.name;
+                    quill.root.innerHTML = p.description_html;
+                    
+                    // PERBAIKAN: Menangani JSON String Parsing dengan Aman
+                    likes = typeof p.likes === 'string' ? JSON.parse(p.likes) : (p.likes || []);
+                    hobbies = typeof p.hobbies === 'string' ? JSON.parse(p.hobbies) : (p.hobbies || []);
+                    
+                    renderTags(likes, 'likes-container', 'sblue'); 
+                    renderTags(hobbies, 'hobbies-container', 'rpurple');
+                    
+                    document.getElementById('photo-preview').src = p.photo_url;
+                    document.getElementById('photo-preview-container').classList.remove('hidden');
+                    
+                    document.getElementById('photo-req').classList.add('hidden');
+                    photoBase64 = null;
+                    document.getElementById('modal-title').textContent = 'Edit Profile';
+                    modal.classList.remove('hidden');
+                }
+            } catch (e) { toast('Error loading profile', true); }
+        }
+
+        async function saveData() {
+            const id = document.getElementById('edit-id').value;
+            const name = document.getElementById('input-name').value.trim();
+            const desc = quill.root.innerHTML;
+            
+            if(!name || quill.getText().trim() === '') return toast('Name and description required', true);
+            if(!id && !photoBase64) return toast('Photo required', true);
+            
+            const payload = { name, description_html: desc, likes, hobbies };
+            if(photoBase64) payload.imageBase64 = photoBase64;
+            
+            const btn = document.getElementById('btn-save');
+            btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            try {
+                const url = id ? `/api/admin/profiles/${id}` : '/api/admin/profiles';
+                const res = await fetch(url, { method: id ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const data = await res.json();
+                if(data.success) { toast('Saved!'); closeFormModal(); loadData(); }
+                else throw new Error(data.message);
+            } catch(e) { toast(e.message, true); }
+            finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Save Profile'; }
+        }
+
+        // Delete Logic
+        const confirmModal = document.getElementById('confirm-modal');
+        function confirmDelete(id) { deleteId = id; confirmModal.classList.remove('hidden'); confirmModal.classList.add('flex'); }
+        function closeConfirmModal() { confirmModal.classList.add('hidden'); confirmModal.classList.remove('flex'); deleteId = null; }
+        
+        document.getElementById('btn-confirm-delete').addEventListener('click', async () => {
+            if(!deleteId) return;
+            try {
+                const res = await fetch(`/api/admin/profiles/${deleteId}`, { method: 'DELETE' });
+                const data = await res.json();
+                if(data.success) { toast('Deleted'); loadData(); }
+            } catch(e) { toast('Delete failed', true); }
+            finally { closeConfirmModal(); }
+        });
+
+        loadData();
+    </script>
+</body>
+</html>

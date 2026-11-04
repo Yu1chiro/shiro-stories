@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Admin Scrapbook</title>
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        sblue: { 50: '#E3F2FD', 200: '#90CAF9', 500: '#2196F3', 900: '#0D47A1' },
+                        rpurple: { 100: '#FFC0DE', 300: '#ED96D7', 500: '#C654C3', 700: '#8E1EA2' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800 flex h-screen overflow-hidden">
+
+    <!-- Mobile Overlay -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-20 hidden lg:hidden"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-white border-r border-sblue-100 z-30 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 flex flex-col">
+        <div class="h-16 flex items-center justify-center border-b border-sblue-100">
+            <h2 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-sblue-500 to-rpurple-500">Scrapbook Admin</h2>
+        </div>
+        <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+            <a href="/admin/dashboard" class="flex items-center gap-3 px-3 py-2.5 bg-sblue-50 text-sblue-600 rounded-lg font-medium">
+                <i class="fas fa-home w-5 text-center"></i> Dashboard
+            </a>
+            <a href="/admin/create-personal-profile" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-sblue-50 hover:text-sblue-600 rounded-lg font-medium transition-colors">
+                <i class="fas fa-user-circle w-5 text-center"></i> Personal Profile
+            </a>
+            <a href="/admin/create-stories" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-sblue-50 hover:text-sblue-600 rounded-lg font-medium transition-colors">
+                <i class="fas fa-book-open w-5 text-center"></i> Stories
+            </a>
+            <a href="/admin/create-moments" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-sblue-50 hover:text-sblue-600 rounded-lg font-medium transition-colors">
+                <i class="fas fa-star w-5 text-center"></i> Moments
+            </a>
+            <a href="/admin/create-gallery" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-sblue-50 hover:text-sblue-600 rounded-lg font-medium transition-colors">
+                <i class="fas fa-images w-5 text-center"></i> Gallery
+            </a>
+            <a href="/admin/gallery-video" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-sblue-50 hover:text-sblue-600 rounded-lg font-medium transition-colors">
+                <i class="fas fa-video w-5 text-center"></i> Videos
+            </a>
+            <a href="/admin/create-letters" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-sblue-50 hover:text-sblue-600 rounded-lg font-medium transition-colors">
+                <i class="fas fa-envelope-open-text w-5 text-center"></i> Letters
+            </a>
+            <a href="/admin/create-song" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-sblue-50 hover:text-sblue-600 rounded-lg font-medium transition-colors">
+                <i class="fas fa-music w-5 text-center"></i> Songs
+            </a>
+        </nav>
+        <div class="p-4 border-t border-sblue-100">
+            <button id="logout-btn" class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-lg font-medium transition-colors">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-full lg:ml-64 w-full">
+        <!-- Topbar -->
+        <header class="h-16 bg-white border-b border-sblue-100 flex items-center justify-between px-4 sm:px-6 z-10">
+            <button id="mobile-menu-btn" class="lg:hidden text-gray-600 text-xl focus:outline-none">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="font-medium text-gray-600 hidden sm:block">Welcome back, Admin</div>
+            <a href="/" target="_blank" class="text-sm bg-sblue-50 text-sblue-600 px-3 py-1.5 rounded-full hover:bg-sblue-100 transition-colors font-medium">
+                <i class="fas fa-external-link-alt mr-1"></i> View Site
+            </a>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="flex-1 overflow-auto p-4 sm:p-8 bg-gray-50">
+            
+            <div class="mb-8">
+                <h1 class="text-2xl font-bold text-sblue-900 mb-1">Dashboard</h1>
+                <p class="text-gray-500 text-sm">Overview of your digital scrapbook.</p>
+            </div>
+
+            <!-- Relationship Countdown -->
+            <div class="bg-gradient-to-r from-sblue-500 to-rpurple-500 rounded-2xl p-6 sm:p-10 shadow-lg text-white mb-8 text-center relative overflow-hidden">
+                <div class="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+                <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+                <h3 class="text-sblue-50 font-medium tracking-widest uppercase text-sm mb-4">Time Together</h3>
+                <div id="countdown" class="grid grid-cols-4 gap-2 sm:gap-4 max-w-2xl mx-auto">
+                    <div class="bg-white/20 rounded-xl p-3 sm:p-4 backdrop-blur-sm border border-white/20">
+                        <div id="cd-days" class="text-3xl sm:text-5xl font-bold mb-1">0</div>
+                        <div class="text-xs sm:text-sm font-medium">Days</div>
+                    </div>
+                    <div class="bg-white/20 rounded-xl p-3 sm:p-4 backdrop-blur-sm border border-white/20">
+                        <div id="cd-hours" class="text-3xl sm:text-5xl font-bold mb-1">0</div>
+                        <div class="text-xs sm:text-sm font-medium">Hours</div>
+                    </div>
+                    <div class="bg-white/20 rounded-xl p-3 sm:p-4 backdrop-blur-sm border border-white/20">
+                        <div id="cd-minutes" class="text-3xl sm:text-5xl font-bold mb-1">0</div>
+                        <div class="text-xs sm:text-sm font-medium">Mins</div>
+                    </div>
+                    <div class="bg-white/20 rounded-xl p-3 sm:p-4 backdrop-blur-sm border border-white/20">
+                        <div id="cd-seconds" class="text-3xl sm:text-5xl font-bold mb-1">0</div>
+                        <div class="text-xs sm:text-sm font-medium">Secs</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6" id="stats-grid">
+                <!-- Stats loaded via JS -->
+                <div class="col-span-full text-center py-10 text-gray-400">
+                    <i class="fas fa-circle-notch fa-spin text-2xl"></i><br>Loading statistics...
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // --- Sidebar Logic ---
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        const menuBtn = document.getElementById('mobile-menu-btn');
+        
+        menuBtn.addEventListener('click', () => {
+            sidebar.classList.remove('-translate-x-full');
+            overlay.classList.remove('hidden');
+        });
+        overlay.addEventListener('click', () => {
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.add('hidden');
+        });
+
+        // --- Logout ---
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            try {
+                await fetch('/api/auth/logout', { method: 'POST' });
+                window.location.href = '/signin';
+            } catch (e) { alert('Logout failed'); }
+        });
+
+        // --- Fetch Stats ---
+        async function loadStats() {
+            try {
+                const res = await fetch('/api/admin/dashboard/stats');
+                const data = await res.json();
+                if(data.success) {
+                    const s = data.data;
+                    const items = [
+                        { icon: 'fa-book-open', title: 'Stories', count: s.stories, color: 'text-sblue-500', bg: 'bg-sblue-50' },
+                        { icon: 'fa-user-circle', title: 'Profiles', count: s.profiles, color: 'text-rpurple-500', bg: 'bg-rpurple-50' },
+                        { icon: 'fa-star', title: 'Moments', count: s.moments, color: 'text-yellow-500', bg: 'bg-yellow-50' },
+                        { icon: 'fa-images', title: 'Gallery', count: s.gallery, color: 'text-green-500', bg: 'bg-green-50' },
+                        { icon: 'fa-video', title: 'Videos', count: s.videos, color: 'text-red-500', bg: 'bg-red-50' },
+                        { icon: 'fa-envelope-open-text', title: 'Letters', count: s.letters, color: 'text-indigo-500', bg: 'bg-indigo-50' },
+                        { icon: 'fa-music', title: 'Songs', count: s.songs, color: 'text-pink-500', bg: 'bg-pink-50' }
+                    ];
+                    
+                    document.getElementById('stats-grid').innerHTML = items.map(i => `
+                        <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-lg ${i.bg} ${i.color} flex items-center justify-center text-xl">
+                                <i class="fas ${i.icon}"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm font-medium text-gray-500">${i.title}</div>
+                                <div class="text-2xl font-bold text-gray-800">${i.count}</div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch(e) {}
+        }
+
+        // --- Relationship Countdown ---
+        // Target: 26 October 2026, 00:00:00 (Asia/Makassar, which is UTC+8). 
+        const targetDate = new Date('2026-10-26T00:00:00+08:00').getTime();
+        
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const difference = now - targetDate; // Durasi berlalu sejak jadian
+            
+            if (difference < 0) {
+                // Belum mulai
+                document.getElementById('cd-days').innerText = '0';
+                document.getElementById('cd-hours').innerText = '0';
+                document.getElementById('cd-minutes').innerText = '0';
+                document.getElementById('cd-seconds').innerText = '0';
+                return;
+            }
+
+            const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+            document.getElementById('cd-days').innerText = days;
+            document.getElementById('cd-hours').innerText = hours;
+            document.getElementById('cd-minutes').innerText = minutes;
+            document.getElementById('cd-seconds').innerText = seconds;
+        }
+        
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+        loadStats();
+
+    </script>
+</body>
+</html>

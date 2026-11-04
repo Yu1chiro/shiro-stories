@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Gallery - Admin Scrapbook</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'] }, colors: { sblue: { 50: '#E3F2FD', 200: '#90CAF9', 500: '#2196F3', 900: '#0D47A1' }, rpurple: { 100: '#FFC0DE', 300: '#ED96D7', 500: '#C654C3', 700: '#8E1EA2' } } } } }
+    </script>
+    <style>#toast-container { position: fixed; top: 1rem; right: 1rem; z-index: 100; display: flex; flex-direction: column; gap: 0.5rem; }</style>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800 flex h-screen overflow-hidden">
+    
+    <div id="toast-container"></div>
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-20 hidden lg:hidden"></div>
+
+    <aside id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-white border-r border-sblue-100 z-30 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 flex flex-col">
+        <div class="h-16 flex items-center justify-center border-b border-sblue-100"><h2 class="text-xl font-bold text-sblue-900">Scrapbook Admin</h2></div>
+        <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+            <a href="/admin/dashboard" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-sblue-50 hover:text-sblue-600 rounded-lg font-medium transition-colors"><i class="fas fa-home w-5 text-center"></i> Dashboard</a>
+            <a href="/admin/create-personal-profile" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-sblue-50 hover:text-sblue-600 rounded-lg font-medium transition-colors"><i class="fas fa-user-circle w-5 text-center"></i> Personal Profile</a>
+            <a href="/admin/create-stories" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-sblue-50 hover:text-sblue-600 rounded-lg font-medium transition-colors"><i class="fas fa-book-open w-5 text-center"></i> Stories</a>
+            <a href="/admin/create-moments" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-sblue-50 hover:text-sblue-600 rounded-lg font-medium transition-colors"><i class="fas fa-star w-5 text-center"></i> Moments</a>
+            <a href="/admin/create-gallery" class="flex items-center gap-3 px-3 py-2.5 bg-sblue-50 text-sblue-600 rounded-lg font-medium"><i class="fas fa-images w-5 text-center"></i> Gallery</a>
+            <a href="/admin/gallery-video" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-sblue-50 hover:text-sblue-600 rounded-lg font-medium transition-colors"><i class="fas fa-video w-5 text-center"></i> Videos</a>
+            <a href="/admin/create-letters" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-sblue-50 hover:text-sblue-600 rounded-lg font-medium transition-colors"><i class="fas fa-envelope-open-text w-5 text-center"></i> Letters</a>
+            <a href="/admin/create-song" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-sblue-50 hover:text-sblue-600 rounded-lg font-medium transition-colors"><i class="fas fa-music w-5 text-center"></i> Songs</a>
+        </nav>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-full lg:ml-64 w-full relative">
+        <header class="h-16 bg-white border-b border-sblue-100 flex items-center justify-between px-4 sm:px-6 z-10">
+            <div class="flex items-center gap-4">
+                <button id="mobile-menu-btn" class="lg:hidden text-gray-600 text-xl focus:outline-none"><i class="fas fa-bars"></i></button>
+                <h1 class="text-xl font-bold text-sblue-900 hidden sm:block">Manage Gallery</h1>
+            </div>
+            <button onclick="openFormModal()" class="bg-sblue-500 hover:bg-sblue-900 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm"><i class="fas fa-plus mr-1"></i> Add Image</button>
+        </header>
+
+        <div class="flex-1 overflow-auto p-4 sm:p-6">
+            <div class="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50 border-b border-gray-100 text-xs uppercase text-gray-500 tracking-wider">
+                                <th class="p-4 w-20">Thumb</th>
+                                <th class="p-4">Title</th>
+                                <th class="p-4">Date</th>
+                                <th class="p-4">Source</th>
+                                <th class="p-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body" class="text-sm divide-y divide-gray-100">
+                            <tr><td colspan="5" class="p-8 text-center text-gray-400"><i class="fas fa-spinner fa-spin text-2xl"></i></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="p-4 border-t border-gray-100 flex justify-between items-center bg-gray-50">
+                    <span id="page-info" class="text-sm text-gray-500">Page 1</span>
+                    <div class="flex gap-2">
+                        <button onclick="changePage(-1)" class="px-3 py-1 bg-white border border-gray-200 rounded text-gray-600 hover:bg-gray-50 disabled:opacity-50"><i class="fas fa-chevron-left"></i></button>
+                        <button onclick="changePage(1)" class="px-3 py-1 bg-white border border-gray-200 rounded text-gray-600 hover:bg-gray-50 disabled:opacity-50"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Modal Overlay -->
+        <div id="form-modal" class="fixed inset-0 bg-black/60 z-50 hidden flex justify-end">
+            <div class="bg-white w-full max-w-xl h-full flex flex-col shadow-2xl overflow-hidden relative">
+                <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                    <h3 id="modal-title" class="text-xl font-bold text-gray-800">Add Gallery Image</h3>
+                    <button onclick="closeFormModal()" class="text-gray-400 hover:text-red-500 text-2xl"><i class="fas fa-times"></i></button>
+                </div>
+                
+                <div class="flex-1 overflow-y-auto p-6">
+                    <form id="data-form" class="space-y-5">
+                        <input type="hidden" id="edit-id">
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Title <span class="text-red-500">*</span></label>
+                            <input type="text" id="input-title" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-sblue-500 outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Event Date <span class="text-red-500">*</span></label>
+                            <input type="date" id="input-date" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-sblue-500 outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Image Source</label>
+                            <div class="flex gap-4">
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="source_type" value="upload" checked class="text-sblue-500 focus:ring-sblue-500">
+                                    <span class="text-sm font-medium">Upload ImageKit</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="source_type" value="external_url" class="text-sblue-500 focus:ring-sblue-500">
+                                    <span class="text-sm font-medium">External URL (HTTPS)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div id="group-upload">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Upload File <span id="file-req" class="text-red-500">*</span></label>
+                            <input type="file" id="input-file" accept="image/png, image/jpeg, image/jpg, image/webp" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-sblue-50 file:text-sblue-600 hover:file:bg-sblue-100 cursor-pointer">
+                        </div>
+
+                        <div id="group-url" class="hidden">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Image URL (HTTPS) <span class="text-red-500">*</span></label>
+                            <input type="url" id="input-url" placeholder="https://example.com/image.jpg" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-sblue-500 outline-none">
+                            <button type="button" id="btn-preview-url" class="mt-2 text-sm text-sblue-500 hover:underline">Test & Preview URL</button>
+                        </div>
+
+                        <div id="preview-container" class="hidden">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Preview</label>
+                            <img id="image-preview" src="" class="w-full max-h-64 object-contain bg-gray-50 border border-gray-200 rounded-lg">
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="p-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
+                    <button type="button" onclick="closeFormModal()" class="px-5 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 font-medium">Cancel</button>
+                    <button type="button" onclick="saveData()" id="btn-save" class="px-5 py-2 rounded-lg bg-sblue-500 hover:bg-sblue-900 text-white font-medium flex items-center gap-2"><i class="fas fa-save"></i> Save</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="confirm-modal" class="fixed inset-0 bg-black/60 z-[60] hidden items-center justify-center p-4">
+            <div class="bg-white rounded-xl shadow-xl w-full max-w-sm overflow-hidden text-center">
+                <div class="p-6">
+                    <div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl"><i class="fas fa-trash-alt"></i></div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Delete Image?</h3>
+                </div>
+                <div class="bg-gray-50 px-6 py-4 flex gap-3 justify-end">
+                    <button onclick="closeConfirmModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-600">Cancel</button>
+                    <button id="btn-confirm-delete" class="px-4 py-2 bg-red-500 text-white rounded-lg">Delete</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const toast = (msg, isErr=false) => {
+            const t = document.createElement('div');
+            t.className = `px-4 py-3 rounded-lg shadow-lg text-white text-sm font-medium transition-opacity duration-300 flex items-center gap-2 ${isErr ? 'bg-red-600' : 'bg-green-600'}`;
+            t.innerHTML = `<i class="fas ${isErr ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${msg}`;
+            document.getElementById('toast-container').appendChild(t);
+            setTimeout(() => { t.style.opacity='0'; setTimeout(()=>t.remove(), 300); }, 3000);
+        };
+        const fileToBase64 = (file) => new Promise((resolve) => { const r = new FileReader(); r.readAsDataURL(file); r.onload = () => resolve(r.result); });
+
+        // Mobile Menu
+        document.getElementById('mobile-menu-btn').addEventListener('click', () => { document.getElementById('sidebar').classList.remove('-translate-x-full'); document.getElementById('sidebar-overlay').classList.remove('hidden'); });
+        document.getElementById('sidebar-overlay').addEventListener('click', () => { document.getElementById('sidebar').classList.add('-translate-x-full'); document.getElementById('sidebar-overlay').classList.add('hidden'); });
+
+        // Source Type Toggle logic
+        const radUpload = document.querySelector('input[value="upload"]');
+        const radUrl = document.querySelector('input[value="external_url"]');
+        const grpUpload = document.getElementById('group-upload');
+        const grpUrl = document.getElementById('group-url');
+        const previewContainer = document.getElementById('preview-container');
+        const imagePreview = document.getElementById('image-preview');
+
+        function toggleSource() {
+            previewContainer.classList.add('hidden');
+            if(radUpload.checked) {
+                grpUpload.classList.remove('hidden'); grpUrl.classList.add('hidden');
+                document.getElementById('input-url').required = false;
+                if(!document.getElementById('edit-id').value) document.getElementById('input-file').required = true;
+            } else {
+                grpUpload.classList.add('hidden'); grpUrl.classList.remove('hidden');
+                document.getElementById('input-file').required = false;
+                document.getElementById('input-url').required = true;
+            }
+        }
+        radUpload.addEventListener('change', toggleSource); radUrl.addEventListener('change', toggleSource);
+
+        let imgBase64 = null;
+        document.getElementById('input-file').addEventListener('change', async (e) => {
+            const f = e.target.files[0];
+            if(f) { imgBase64 = await fileToBase64(f); imagePreview.src = imgBase64; previewContainer.classList.remove('hidden'); }
+        });
+
+        document.getElementById('btn-preview-url').addEventListener('click', () => {
+            const url = document.getElementById('input-url').value;
+            if(!url.startsWith('https://')) return toast('URL must start with https://', true);
+            imagePreview.src = url; previewContainer.classList.remove('hidden');
+        });
+
+        // Table & CRUD
+        let currentPage = 1; const limit = 10; let deleteId = null;
+
+        async function loadData() {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-gray-400"><i class="fas fa-spinner fa-spin text-2xl"></i></td></tr>';
+            try {
+                const res = await fetch(`/api/admin/gallery?page=${currentPage}&limit=${limit}`);
+                const data = await res.json();
+                if(data.success) {
+                    document.getElementById('page-info').textContent = `Page ${currentPage}`;
+                    if(data.data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-gray-500">No images found.</td></tr>'; return; }
+                    tbody.innerHTML = data.data.map(item => `
+                        <tr class="border-b border-gray-50 hover:bg-gray-50/50">
+                            <td class="p-4"><img src="${item.image_url}" class="w-16 h-12 rounded object-cover border border-gray-200"></td>
+                            <td class="p-4 font-medium text-gray-800">${item.title}</td>
+                            <td class="p-4 text-gray-500">${new Date(item.event_date).toLocaleDateString('id-ID')}</td>
+                            <td class="p-4"><span class="px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-600">${item.source_type}</span></td>
+                            <td class="p-4 text-right space-x-2">
+                                <button onclick="editData(${item.id})" class="w-8 h-8 rounded bg-sblue-50 text-sblue-600 hover:bg-sblue-100"><i class="fas fa-edit"></i></button>
+                                <button onclick="confirmDelete(${item.id})" class="w-8 h-8 rounded bg-red-50 text-red-600 hover:bg-red-100"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch(e) { toast('Load failed', true); }
+        }
+        function changePage(dir) { if(dir === -1 && currentPage > 1) { currentPage--; loadData(); } else if(dir === 1) { currentPage++; loadData(); } }
+
+        const modal = document.getElementById('form-modal');
+        function openFormModal() {
+            document.getElementById('edit-id').value = ''; document.getElementById('data-form').reset();
+            radUpload.checked = true; toggleSource();
+            document.getElementById('file-req').classList.remove('hidden');
+            imgBase64 = null; previewContainer.classList.add('hidden');
+            document.getElementById('modal-title').textContent = 'Add Gallery Image';
+            modal.classList.remove('hidden');
+        }
+        function closeFormModal() { modal.classList.add('hidden'); }
+
+        async function editData(id) {
+            try {
+                const res = await fetch(`/api/admin/gallery/${id}`);
+                const data = await res.json();
+                if(data.success) {
+                    const g = data.data;
+                    document.getElementById('edit-id').value = g.id;
+                    document.getElementById('input-title').value = g.title;
+                    document.getElementById('input-date').value = g.event_date.split('T')[0];
+                    if(g.source_type === 'external_url') { radUrl.checked = true; document.getElementById('input-url').value = g.image_url; }
+                    else { radUpload.checked = true; }
+                    toggleSource();
+                    document.getElementById('file-req').classList.add('hidden'); document.getElementById('input-file').required = false;
+                    imagePreview.src = g.image_url; previewContainer.classList.remove('hidden'); imgBase64 = null;
+                    document.getElementById('modal-title').textContent = 'Edit Image';
+                    modal.classList.remove('hidden');
+                }
+            } catch(e) { toast('Load error', true); }
+        }
+
+        async function saveData() {
+            const id = document.getElementById('edit-id').value;
+            const title = document.getElementById('input-title').value.trim();
+            const date = document.getElementById('input-date').value;
+            const sourceType = radUpload.checked ? 'upload' : 'external_url';
+            const url = document.getElementById('input-url').value.trim();
+
+            if(!title || !date) return toast('Title and date required', true);
+            if(sourceType === 'external_url' && !url) return toast('External URL required', true);
+            if(sourceType === 'upload' && !id && !imgBase64) return toast('Image upload required', true);
+
+            const payload = { title, event_date: date, sourceType, externalUrl: url };
+            if(imgBase64 && sourceType === 'upload') payload.imageBase64 = imgBase64;
+
+            const btn = document.getElementById('btn-save');
+            btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+            try {
+                const res = await fetch(id ? `/api/admin/gallery/${id}` : '/api/admin/gallery', { method: id ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const data = await res.json();
+                if(data.success) { toast('Saved!'); closeFormModal(); loadData(); } else throw new Error(data.message);
+            } catch(e) { toast(e.message, true); }
+            finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Save'; }
+        }
+
+        const confirmModal = document.getElementById('confirm-modal');
+        function confirmDelete(id) { deleteId = id; confirmModal.classList.remove('hidden'); confirmModal.classList.add('flex'); }
+        function closeConfirmModal() { confirmModal.classList.add('hidden'); confirmModal.classList.remove('flex'); deleteId = null; }
+        document.getElementById('btn-confirm-delete').addEventListener('click', async () => {
+            if(!deleteId) return;
+            try {
+                const res = await fetch(`/api/admin/gallery/${deleteId}`, { method: 'DELETE' });
+                const data = await res.json();
+                if(data.success) { toast('Deleted'); loadData(); }
+            } catch(e) {} finally { closeConfirmModal(); }
+        });
+
+        loadData();
+    </script>
+</body>
+</html>

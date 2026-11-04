@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#FFF1F7">
+    <title>Hiro & Shika - Private Scrapbook</title>
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Nunito', 'ui-sans-serif', 'sans-serif'],
+                        serif: ['Playfair Display', 'Georgia', 'serif']
+                    },
+                    colors: {
+                        sblue: { 50: '#E3F2FD', 100: '#EEF7FF', 200: '#90CAF9', 500: '#2196F3', 900: '#0D47A1' },
+                        rpurple: { 50: '#FFF5FA', 100: '#FFC0DE', 300: '#ED96D7', 500: '#C654C3', 700: '#8E1EA2' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root { --blush: #FFF1F7; --lilac: #F4ECFF; --sky: #E8F4FF; --plum: #5E2A78; --ink: #5B4763; }
+        /* HERO: ganti URL gambar di bawah ini */
+        :root { --hero-image: url('https://ik.imagekit.io/shiroasset/shika-hiro.png'); }
+        #hero { background-image: var(--hero-image); background-size: cover; background-position: center; background-repeat: no-repeat; }
+        #hero h1, #hero h2 { text-shadow: 0 1px 14px rgba(255, 255, 255, .75); }
+        html { -webkit-text-size-adjust: 100%; scroll-padding-top: 4rem; }
+        body {
+            min-height: 100dvh; color: var(--ink);
+            background: linear-gradient(170deg, var(--blush) 0%, var(--lilac) 48%, var(--sky) 100%);
+        }
+        ::selection { background: #FFC0DE; color: var(--plum); }
+        a:focus-visible, button:focus-visible { outline: 2px solid #C654C3 !important; outline-offset: 3px; }
+        .text-balance { text-wrap: balance; }
+
+        .glass-nav { background: rgba(255, 255, 255, 0.72); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid rgba(255, 192, 222, 0.5); box-shadow: 0 6px 20px -14px rgba(198, 84, 195, .4); }
+        .masonry > .col-span-full { column-span: all; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Toast Animation */
+        @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .toast-enter { animation: slideUp 0.3s ease forwards; }
+
+        /* Blob hero (sebelumnya class ini belum punya keyframes) */
+        @keyframes blob { 0%, 100% { transform: translate(0, 0) scale(1); } 33% { transform: translate(24px, -30px) scale(1.08); } 66% { transform: translate(-20px, 20px) scale(.95); } }
+        .animate-blob { animation: blob 12s ease-in-out infinite; }
+        .animation-delay-2000 { animation-delay: 2s; }
+        @media (prefers-reduced-motion: reduce) {
+            .animate-blob, .animate-pulse { animation: none; }
+            html { scroll-behavior: auto !important; }
+        }
+
+        /* Quill render (profil & surat) */
+        .quill-render { overflow-wrap: anywhere; }
+        .quill-render h1, .quill-render h2, .quill-render h3 { font-family: 'Playfair Display', Georgia, serif; font-weight: 600; line-height: 1.3; margin: 1.2em 0 .5rem; color: var(--plum); }
+        .quill-render h1 { font-size: 1.5rem; } .quill-render h2 { font-size: 1.3rem; } .quill-render h3 { font-size: 1.15rem; font-style: italic; }
+        .quill-render > :first-child { margin-top: 0; }
+        .quill-render p { margin-bottom: .85rem; }
+        .quill-render strong { color: var(--plum); }
+        .quill-render ul { list-style: disc; padding-left: 1.4rem; margin-bottom: .85rem; }
+        .quill-render ol { list-style: decimal; padding-left: 1.4rem; margin-bottom: .85rem; }
+        .quill-render li::marker { color: #ED96D7; }
+        .quill-render img { max-width: 100%; height: auto; border: 4px solid #fff; border-radius: 1rem; margin: 1rem auto; box-shadow: 0 10px 26px -14px rgba(198, 84, 195, .5); }
+        .quill-render blockquote { font-family: 'Playfair Display', Georgia, serif; font-style: italic; color: #7A4A8A; background: linear-gradient(135deg, #FFF5FA, #F4ECFF); border: 1px solid rgba(237, 150, 215, .35); border-radius: 1rem; padding: .9rem 1.1rem; margin: 1rem 0; }
+        .quill-render a { color: #A63DA6; text-decoration: underline; text-decoration-color: #ED96D7; text-underline-offset: 3px; }
+        .quill-render .ql-align-center { text-align: center; } .quill-render .ql-align-right { text-align: right; } .quill-render .ql-align-justify { text-align: justify; }
+    </style>
+</head>
+<!-- DEFAULT OVERFLOW-HIDDEN: Mencegah scroll sebelum scrapbook dibuka -->
+<body class="font-sans antialiased overflow-x-hidden overflow-hidden" id="page-body">
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- 1. PIN GATE SECTION -->
+    <div id="pin-gate" class="fixed inset-0 bg-gradient-to-br from-rpurple-50 via-[#F4ECFF] to-sblue-100 z-[100] flex items-center justify-center transition-opacity duration-500">
+        <div class="text-center px-6 py-10 max-w-sm w-[calc(100%-2rem)] bg-white/75 backdrop-blur rounded-[2rem] border border-white shadow-[0_24px_60px_-28px_rgba(198,84,195,.5)]">
+            <div class="w-20 h-20 bg-rpurple-100/60 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner border border-white">
+                <i class="fas fa-lock text-3xl text-rpurple-500"></i>
+            </div>
+            <h1 class="text-3xl font-serif font-semibold text-[#5E2A78] mb-2">Private Scrapbook</h1>
+            <p class="text-[#8A7592] text-sm mb-8">Please enter the PIN to unlock our memories.</p>
+            <form id="pin-form" class="space-y-4">
+                <input type="password" id="pin-input" required placeholder="Enter PIN" 
+                    class="w-full text-center tracking-widest text-2xl px-4 py-3.5 bg-white/80 border-2 border-rpurple-100 rounded-2xl text-[#5E2A78] placeholder:text-base placeholder:tracking-normal placeholder:text-[#B9A6C2] focus:border-rpurple-300 focus:ring-4 focus:ring-rpurple-100 outline-none transition-colors">
+                <button type="submit" id="pin-btn" class="w-full bg-gradient-to-r from-sblue-500 to-rpurple-500 hover:from-sblue-900 hover:to-rpurple-700 text-white font-semibold py-3.5 rounded-2xl transition-all shadow-md shadow-rpurple-300/40">
+                    Unlock
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. MUSIC POPUP MODAL -->
+    <div id="music-modal" class="fixed inset-0 bg-[#2A1530]/50 z-[90] hidden items-center justify-center p-4 backdrop-blur-sm opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-[2rem] p-7 sm:p-8 max-w-sm w-full text-center shadow-2xl border border-rpurple-100 transform scale-95 transition-transform duration-300" id="music-modal-content">
+            <div class="w-16 h-16 bg-rpurple-100 text-rpurple-500 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                <i class="fas fa-music"></i>
+            </div>
+            <h3 class="text-2xl font-serif font-semibold text-[#5E2A78] mb-2">Play our song?</h3>
+            <p class="text-[#8A7592] text-sm mb-6">Would you like to play our background music while exploring the scrapbook?</p>
+            <div class="flex flex-col-reverse sm:flex-row gap-3 justify-center">
+                <button id="btn-no-music" class="px-5 py-2.5 rounded-full border border-rpurple-100 text-[#6B5575] hover:bg-rpurple-50 transition-colors font-semibold">No, continue</button>
+                <button id="btn-yes-music" class="px-5 py-2.5 rounded-full bg-gradient-to-r from-sblue-500 to-rpurple-500 text-white hover:from-sblue-900 hover:to-rpurple-700 transition-all shadow-md shadow-rpurple-300/40 font-semibold">Yes, play music</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT (SPA) -->
+    <div id="main-content" class="hidden opacity-0 transition-opacity duration-700">
+        
+        <!-- Navigation -->
+        <nav class="fixed top-0 w-full glass-nav z-40 transition-transform duration-300" id="navbar">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6">
+                <div class="flex justify-between items-center h-16">
+                    <a href="#" class="flex items-center gap-1.5 font-serif italic text-xl sm:text-2xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-sblue-500 to-rpurple-500">H & S <i class="fas fa-heart text-[10px] text-rpurple-300" aria-hidden="true"></i></a>
+                    
+                    <!-- Desktop Menu -->
+                    <div class="hidden md:flex space-x-7 text-[15px] font-semibold text-[#6B5575]">
+                        <a href="#profiles" class="hover:text-rpurple-500 transition-colors">Profiles</a>
+                        <a href="#stories" class="hover:text-rpurple-500 transition-colors">Stories</a>
+                        <a href="#moments" class="hover:text-rpurple-500 transition-colors">Moments</a>
+                        <a href="#gallery" class="hover:text-rpurple-500 transition-colors">Gallery</a>
+                        <a href="#letters" class="hover:text-rpurple-500 transition-colors">Letters</a>
+                    </div>
+
+                    <!-- Mobile Menu Button -->
+                    <button id="mobile-menu-btn" class="md:hidden w-11 h-11 rounded-full flex items-center justify-center text-rpurple-700 hover:bg-rpurple-100/50 transition-colors text-xl">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+            <!-- Mobile Menu Dropdown -->
+            <div id="mobile-menu" class="hidden md:hidden bg-white/95 backdrop-blur-lg border-b border-rpurple-100/70 rounded-b-3xl shadow-lg shadow-rpurple-300/20 absolute w-full">
+                <div class="px-4 pt-2 pb-5 space-y-1 text-base font-semibold text-[#6B5575]">
+                    <a href="#profiles" class="block px-4 py-3 rounded-2xl hover:bg-rpurple-100/50 hover:text-rpurple-700 mobile-link">Profiles</a>
+                    <a href="#stories" class="block px-4 py-3 rounded-2xl hover:bg-rpurple-100/50 hover:text-rpurple-700 mobile-link">Stories</a>
+                    <a href="#moments" class="block px-4 py-3 rounded-2xl hover:bg-rpurple-100/50 hover:text-rpurple-700 mobile-link">Moments</a>
+                    <a href="#gallery" class="block px-4 py-3 rounded-2xl hover:bg-rpurple-100/50 hover:text-rpurple-700 mobile-link">Gallery</a>
+                    <a href="#letters" class="block px-4 py-3 rounded-2xl hover:bg-rpurple-100/50 hover:text-rpurple-700 mobile-link">Letters</a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Mini Music Player -->
+        <div id="mini-player" class="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 hidden bg-white/90 backdrop-blur shadow-lg shadow-rpurple-300/30 border border-rpurple-100 rounded-full py-2.5 px-4 flex items-center gap-3">
+            <button id="player-toggle" class="text-rpurple-500 hover:text-rpurple-700 transition-colors"><i class="fas fa-pause"></i></button>
+            <div class="w-20 sm:w-24 h-1.5 bg-rpurple-100 rounded-full overflow-hidden">
+                <div id="player-progress" class="h-full bg-gradient-to-r from-sblue-500 to-rpurple-500 w-0"></div>
+            </div>
+            <button id="player-mute" class="text-[#8A7592] hover:text-rpurple-700 transition-colors text-sm"><i class="fas fa-volume-up"></i></button>
+            <audio id="bg-audio" loop></audio>
+        </div>
+
+        <!-- HERO SECTION -->
+        <header id="hero" class="min-h-screen flex items-center justify-center relative overflow-hidden bg-rpurple-50 pt-16">
+            <!-- Scrim polos: atur transparansi (bg-white/45) sesuai terang-gelapnya foto -->
+            <div class="absolute inset-0 bg-white/45"></div>
+            <div class="text-center z-10 px-4">
+                <h2 class="font-serif italic text-base sm:text-xl text-rpurple-700 mb-4">Our Digital Scrapbook</h2>
+                <h1 class="text-5xl sm:text-7xl md:text-8xl font-serif font-semibold text-[#5E2A78] leading-[1.08] mb-6 text-balance">Hiro & Shika</h1>
+                <p class="inline-flex items-center gap-2 rounded-full bg-white/70 border border-rpurple-100 px-4 py-1.5 text-sm sm:text-base font-semibold text-rpurple-700 mb-10"><i class="fas fa-heart text-[10px] text-rpurple-500" aria-hidden="true"></i> 26 October 2026</p>
+                <button id="btn-open-scrapbook" class="inline-flex items-center gap-2 bg-gradient-to-r from-sblue-500 to-rpurple-500 hover:from-sblue-900 hover:to-rpurple-700 text-white px-8 py-3.5 rounded-full font-semibold transition-all shadow-lg shadow-rpurple-300/40 hover:shadow-xl">
+                    Open Scrapbook <i class="fas fa-heart text-xs" aria-hidden="true"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- PROFILES SECTION -->
+        <section id="profiles" class="py-16 sm:py-24 bg-[#FFF5FA] border-t border-white">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6">
+                <div class="text-center mb-10 sm:mb-16">
+                    <h2 class="text-3xl md:text-4xl font-serif font-semibold text-[#5E2A78] mb-4 text-balance">About Us</h2>
+                    <div class="flex items-center justify-center gap-3 text-rpurple-300" aria-hidden="true"><span class="h-px w-14 sm:w-24 bg-gradient-to-r from-transparent to-rpurple-300/70"></span><i class="fas fa-heart text-xs"></i><span class="h-px w-14 sm:w-24 bg-gradient-to-l from-transparent to-rpurple-300/70"></span></div>
+                </div>
+                <!-- Profile Cards Container -->
+                <div id="profiles-container" class="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 pt-8">
+                    <!-- Loaded via JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- STORIES SECTION -->
+        <section id="stories" class="py-16 sm:py-24 bg-white/70">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6">
+                <div class="text-center mb-10 sm:mb-16">
+                    <h2 class="text-3xl md:text-4xl font-serif font-semibold text-[#5E2A78] mb-4 text-balance">Our Stories</h2>
+                    <div class="flex items-center justify-center gap-3 text-rpurple-300" aria-hidden="true"><span class="h-px w-14 sm:w-24 bg-gradient-to-r from-transparent to-rpurple-300/70"></span><i class="fas fa-heart text-xs"></i><span class="h-px w-14 sm:w-24 bg-gradient-to-l from-transparent to-rpurple-300/70"></span></div>
+                </div>
+                <div id="stories-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+                    <!-- Loaded via JS -->
+                </div>
+                <div class="text-center mt-10 sm:mt-12">
+                    <button id="btn-load-stories" class="hidden px-7 py-3 bg-white border border-rpurple-100 text-rpurple-700 rounded-full font-semibold shadow-sm hover:bg-rpurple-100/60 transition-colors">Load More</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- MOMENTS SECTION -->
+        <section id="moments" class="py-16 sm:py-24 bg-[#F4ECFF]/70">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6">
+                <div class="text-center mb-10 sm:mb-16">
+                    <h2 class="text-3xl md:text-4xl font-serif font-semibold text-[#5E2A78] mb-4 text-balance">Special Moments</h2>
+                    <div class="flex items-center justify-center gap-3 text-rpurple-300" aria-hidden="true"><span class="h-px w-14 sm:w-24 bg-gradient-to-r from-transparent to-rpurple-300/70"></span><i class="fas fa-heart text-xs"></i><span class="h-px w-14 sm:w-24 bg-gradient-to-l from-transparent to-rpurple-300/70"></span></div>
+                </div>
+                <div id="moments-grid" class="masonry columns-2 md:columns-4 gap-3 sm:gap-4">
+                    <!-- Loaded via JS -->
+                </div>
+                <div class="text-center mt-10 sm:mt-12">
+                    <button id="btn-load-moments" class="hidden px-7 py-3 bg-white border border-rpurple-100 text-rpurple-700 rounded-full font-semibold shadow-sm hover:bg-rpurple-100/60 transition-colors">Load More</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- GALLERY SECTION -->
+        <section id="gallery" class="py-16 sm:py-24 bg-white/70">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6">
+                <div class="text-center mb-10 sm:mb-16">
+                    <h2 class="text-3xl md:text-4xl font-serif font-semibold text-[#5E2A78] mb-4 text-balance">Photo Gallery</h2>
+                    <div class="flex items-center justify-center gap-3 text-rpurple-300" aria-hidden="true"><span class="h-px w-14 sm:w-24 bg-gradient-to-r from-transparent to-rpurple-300/70"></span><i class="fas fa-heart text-xs"></i><span class="h-px w-14 sm:w-24 bg-gradient-to-l from-transparent to-rpurple-300/70"></span></div>
+                </div>
+                <div id="gallery-grid" class="masonry columns-2 md:columns-3 lg:columns-4 gap-3 sm:gap-4">
+                    <!-- Loaded via JS -->
+                </div>
+                <div class="text-center mt-10 sm:mt-12">
+                    <button id="btn-load-gallery" class="hidden px-7 py-3 bg-white border border-rpurple-100 text-rpurple-700 rounded-full font-semibold shadow-sm hover:bg-rpurple-100/60 transition-colors">Load More</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIDEOS SECTION -->
+        <section id="videos" class="py-16 sm:py-24 bg-[#EEF7FF]">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6">
+                <div class="text-center mb-10 sm:mb-16">
+                    <h2 class="text-3xl md:text-4xl font-serif font-semibold text-[#5E2A78] mb-4 text-balance">Video Memories</h2>
+                    <div class="flex items-center justify-center gap-3 text-rpurple-300" aria-hidden="true"><span class="h-px w-14 sm:w-24 bg-gradient-to-r from-transparent to-rpurple-300/70"></span><i class="fas fa-heart text-xs"></i><span class="h-px w-14 sm:w-24 bg-gradient-to-l from-transparent to-rpurple-300/70"></span></div>
+                </div>
+                <div id="videos-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                    <!-- Loaded via JS -->
+                </div>
+                <div class="text-center mt-10 sm:mt-12">
+                    <button id="btn-load-videos" class="hidden px-7 py-3 bg-white border border-rpurple-100 text-rpurple-700 rounded-full font-semibold shadow-sm hover:bg-rpurple-100/60 transition-colors">Load More</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- LETTERS SECTION -->
+        <section id="letters" class="py-16 sm:py-24 bg-white/70 border-b border-rpurple-100/60">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6">
+                <div class="text-center mb-10 sm:mb-16">
+                    <h2 class="text-3xl md:text-4xl font-serif font-semibold text-[#5E2A78] mb-4 text-balance">Letters</h2>
+                    <div class="flex items-center justify-center gap-3 text-rpurple-300" aria-hidden="true"><span class="h-px w-14 sm:w-24 bg-gradient-to-r from-transparent to-rpurple-300/70"></span><i class="fas fa-heart text-xs"></i><span class="h-px w-14 sm:w-24 bg-gradient-to-l from-transparent to-rpurple-300/70"></span></div>
+                </div>
+                <div id="letters-container" class="space-y-8">
+                    <!-- Loaded via JS -->
+                </div>
+                <div class="text-center mt-10 sm:mt-12">
+                    <button id="btn-load-letters" class="hidden px-7 py-3 bg-white border border-rpurple-100 text-rpurple-700 rounded-full font-semibold shadow-sm hover:bg-rpurple-100/60 transition-colors">Load More</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="bg-gradient-to-b from-[#F4ECFF] to-rpurple-100/70 text-[#5E2A78] py-14 sm:py-16 text-center px-4">
+            <div class="max-w-2xl mx-auto">
+                <i class="fas fa-heart text-rpurple-500 text-2xl mb-6 animate-pulse" aria-hidden="true"></i>
+                <h3 class="text-2xl sm:text-3xl font-serif italic mb-5 text-balance">"Some memories are too special to be forgotten."</h3>
+                <p class="font-serif font-semibold text-lg text-rpurple-700 mb-1">Hiro & Shika</p>
+                <p class="text-[#8A7592] text-sm">25 October 2026</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- GLOBAL LIGHTBOX FOR GALLERY & MOMENTS -->
+    <div id="global-lightbox" class="fixed inset-0 bg-[#2A1530]/95 z-[110] hidden flex flex-col justify-center items-center opacity-0 transition-opacity duration-300">
+        <!-- Top controls -->
+        <div class="absolute top-0 left-0 w-full px-4 sm:px-6 pb-4 pt-[max(1rem,env(safe-area-inset-top))] sm:pt-6 flex justify-between items-center text-white z-10">
+            <div id="glb-counter" class="text-sm font-semibold tracking-wider bg-white/15 rounded-full px-3 py-1">1 / 1</div>
+            <div class="flex gap-2 sm:gap-3">
+                <button id="glb-zoom-in" class="w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center text-lg transition-colors"><i class="fas fa-search-plus"></i></button>
+                <button id="glb-zoom-out" class="w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center text-lg transition-colors"><i class="fas fa-search-minus"></i></button>
+                <button id="glb-close" class="w-10 h-10 rounded-full bg-white/15 hover:bg-rpurple-300/40 flex items-center justify-center text-lg transition-colors"><i class="fas fa-times"></i></button>
+            </div>
+        </div>
+        
+        <!-- Navigation Buttons -->
+        <button id="glb-prev" class="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/15 hover:bg-rpurple-300/40 text-white text-lg md:text-xl flex items-center justify-center transition-colors z-10"><i class="fas fa-chevron-left"></i></button>
+        <button id="glb-next" class="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/15 hover:bg-rpurple-300/40 text-white text-lg md:text-xl flex items-center justify-center transition-colors z-10"><i class="fas fa-chevron-right"></i></button>
+
+        <!-- Image Container -->
+        <div class="relative w-full h-full flex justify-center items-center overflow-hidden" id="glb-img-container">
+            <img id="glb-img" class="max-w-[90vw] max-h-[80vh] object-contain rounded-xl transition-transform duration-300 cursor-grab active:cursor-grabbing" src="" alt="Lightbox image" style="transform: scale(1) translate(0px, 0px);">
+        </div>
+        
+        <!-- Image Info -->
+        <div class="absolute bottom-0 left-0 w-full text-center text-white z-10 px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pointer-events-none">
+            <h4 id="glb-title" class="font-serif text-lg sm:text-xl mb-1"></h4>
+            <p id="glb-date" class="text-sm text-rpurple-100"></p>
+        </div>
+    </div>
+
+
+    <script>
+        // --- UTILITIES ---
+        const showToast = (msg, type = 'success') => {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bgColor = type === 'success' ? 'bg-[#4FA38A]' : 'bg-[#D9567F]';
+            toast.className = `${bgColor} text-white px-5 py-2.5 rounded-full shadow-lg shadow-rpurple-300/40 text-sm font-semibold toast-enter flex items-center gap-2`;
+            toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${msg}`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
+        };
+
+        const formatDate = (dateStr) => {
+            if (!dateStr) return '';
+            return new Date(dateStr).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+        };
+
+        // --- AUTHENTICATION & PIN GATE ---
+        const pinGate = document.getElementById('pin-gate');
+        const mainContent = document.getElementById('main-content');
+        
+        async function checkAuthStatus() {
+            try {
+                const res = await fetch('/api/access/status');
+                const data = await res.json();
+                if (data.success) {
+                    unlockScrapbook(false); 
+                }
+            } catch (err) { console.error('Auth check failed'); }
+        }
+
+        document.getElementById('pin-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('pin-btn');
+            const pin = document.getElementById('pin-input').value;
+            btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            
+            try {
+                const res = await fetch('/api/access/verify-pin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pin })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    showToast('Welcome!', 'success');
+                    unlockScrapbook(true);
+                } else {
+                    showToast(data.message, 'error');
+                    btn.disabled = false; btn.innerHTML = 'Unlock';
+                    document.getElementById('pin-input').value = '';
+                }
+            } catch (err) {
+                showToast('Server error', 'error');
+                btn.disabled = false; btn.innerHTML = 'Unlock';
+            }
+        });
+
+        function unlockScrapbook(fromLogin) {
+            pinGate.classList.add('opacity-0');
+            setTimeout(() => {
+                pinGate.classList.add('hidden');
+                mainContent.classList.remove('hidden');
+                setTimeout(() => mainContent.classList.remove('opacity-0'), 50);
+                
+                // Fetch initial data
+                loadProfiles();
+                loadStories(1);
+                loadMoments(1);
+                loadGallery(1);
+                loadVideos(1);
+                loadLetters(1);
+            }, 500);
+        }
+
+        // --- MUSIC & HERO INTERACTION ---
+        const btnOpen = document.getElementById('btn-open-scrapbook');
+        const musicModal = document.getElementById('music-modal');
+        const musicModalContent = document.getElementById('music-modal-content');
+        const audio = document.getElementById('bg-audio');
+        const miniPlayer = document.getElementById('mini-player');
+        const pageBody = document.getElementById('page-body');
+        let isAudioSetup = false;
+
+        btnOpen.addEventListener('click', () => {
+            if (!isAudioSetup) {
+                musicModal.classList.remove('hidden');
+                musicModal.classList.add('flex');
+                setTimeout(() => {
+                    musicModal.classList.remove('opacity-0');
+                    musicModalContent.classList.remove('scale-95');
+                }, 10);
+            } else {
+                // Jika musik sudah diatur sebelumnya, langsung aktifkan scroll dan geser ke section profiles
+                pageBody.classList.remove('overflow-hidden');
+                document.getElementById('profiles').scrollIntoView();
+            }
+        });
+
+        const closeMusicModalAndScroll = () => {
+            musicModal.classList.add('opacity-0');
+            musicModalContent.classList.add('scale-95');
+            setTimeout(() => {
+                musicModal.classList.add('hidden');
+                musicModal.classList.remove('flex');
+                
+                // MEMBUKA KUNCI SCROLL SETELAH TOMBOL DIKLIK (KONSEP WEDDING INVITATION)
+                pageBody.classList.remove('overflow-hidden');
+                document.getElementById('profiles').scrollIntoView();
+            }, 300);
+        };
+
+        document.getElementById('btn-no-music').addEventListener('click', () => {
+            isAudioSetup = true;
+            closeMusicModalAndScroll();
+        });
+
+        document.getElementById('btn-yes-music').addEventListener('click', async () => {
+            isAudioSetup = true;
+            try {
+                const res = await fetch('/api/public/songs/active');
+                const data = await res.json();
+                if (data.success && data.data) {
+                    audio.src = data.data.mp3_url;
+                    audio.play();
+                    miniPlayer.classList.remove('hidden');
+                } else {
+                    showToast('No active song found.', 'error');
+                }
+            } catch (err) { showToast('Error loading music.', 'error'); }
+            closeMusicModalAndScroll();
+        });
+
+        // Mini Player Controls
+        const btnToggle = document.getElementById('player-toggle');
+        const btnMute = document.getElementById('player-mute');
+        const progressBar = document.getElementById('player-progress');
+
+        btnToggle.addEventListener('click', () => {
+            if (audio.paused) { audio.play(); btnToggle.innerHTML = '<i class="fas fa-pause"></i>'; } 
+            else { audio.pause(); btnToggle.innerHTML = '<i class="fas fa-play"></i>'; }
+        });
+
+        btnMute.addEventListener('click', () => {
+            audio.muted = !audio.muted;
+            btnMute.innerHTML = audio.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+        });
+
+        audio.addEventListener('timeupdate', () => {
+            if (audio.duration) {
+                const progress = (audio.currentTime / audio.duration) * 100;
+                progressBar.style.width = `${progress}%`;
+            }
+        });
+
+        // --- MOBILE NAV ---
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+        document.querySelectorAll('.mobile-link').forEach(link => {
+            link.addEventListener('click', () => mobileMenu.classList.add('hidden'));
+        });
+
+
+        // --- DATA FETCHING & RENDERING SPA ---
+        
+        const setupPagination = (type, fetchFunc) => {
+            let page = 1;
+            const btn = document.getElementById(`btn-load-${type}`);
+            btn.addEventListener('click', () => {
+                page++;
+                fetchFunc(page);
+            });
+            return (hasMore) => {
+                if(hasMore) btn.classList.remove('hidden');
+                else btn.classList.add('hidden');
+            };
+        };
+
+        // 1. Profiles (Max 2) + Fixed Circle Frame & JSON Parsing
+        async function loadProfiles() {
+            try {
+                const res = await fetch('/api/public/profiles');
+                const data = await res.json();
+                if(data.success) {
+                    const container = document.getElementById('profiles-container');
+                    
+                    if (data.data.length === 0) {
+                        container.innerHTML = '<div class="col-span-full text-center text-gray-500 py-10">Belum ada data Profil. Silakan tambahkan di halaman Admin.</div>';
+                        return;
+                    }
+
+                    container.innerHTML = data.data.map(p => {
+                        const safeLikes = Array.isArray(p.likes) ? p.likes : (typeof p.likes === 'string' ? JSON.parse(p.likes) : []);
+                        const safeHobbies = Array.isArray(p.hobbies) ? p.hobbies : (typeof p.hobbies === 'string' ? JSON.parse(p.hobbies) : []);
+                        
+                        return `
+                        <div class="bg-white/90 rounded-[2rem] pt-16 px-6 sm:px-8 pb-8 text-center border border-rpurple-100/70 shadow-[0_18px_40px_-24px_rgba(198,84,195,.45)] hover:shadow-[0_22px_48px_-22px_rgba(198,84,195,.55)] transition-shadow group relative mt-12">
+                            
+                            <!-- Foto Bulat (Circle Floating Avatar) -->
+                            <div class="absolute -top-16 left-1/2 -translate-x-1/2 w-32 h-32 rounded-full overflow-hidden border-4 border-white ring-2 ring-rpurple-100 shadow-lg bg-sblue-50">
+                                <img src="${p.photo_url}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                            </div>
+                            
+                            <h3 class="text-2xl sm:text-3xl font-serif font-semibold text-[#5E2A78] mb-6 mt-2">${p.name}</h3>
+                            
+                            <div class="mb-5 text-left">
+                                <h4 class="font-serif italic text-base text-[#8A7592] mb-2">Likes</h4>
+                                <div class="flex flex-wrap gap-2">
+                                    ${safeLikes.map(l => `<span class="bg-sblue-50 text-[#2F6DB5] text-[13px] font-semibold px-3 py-1.5 rounded-full border border-sblue-200/60">${l}</span>`).join('')}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-6 text-left">
+                                <h4 class="font-serif italic text-base text-[#8A7592] mb-2">Hobbies</h4>
+                                <div class="flex flex-wrap gap-2">
+                                    ${safeHobbies.map(h => `<span class="bg-rpurple-50 text-rpurple-700 text-[13px] font-semibold px-3 py-1.5 rounded-full border border-rpurple-100">${h}</span>`).join('')}
+                                </div>
+                            </div>
+                            
+                            <div class="text-[#5B4763] text-[15px] leading-relaxed border-t border-dashed border-rpurple-100 pt-5 quill-render text-left">
+                                ${p.description_html}
+                            </div>
+                        </div>
+                        `;
+                    }).join('');
+                }
+            } catch(e) { console.error('Profiles fetch error', e); }
+        }
+
+        // 2. Stories
+        let currentStories = [];
+        const updateStoriesBtn = setupPagination('stories', loadStories);
+        
+        async function loadStories(page) {
+            try {
+                const res = await fetch(`/api/public/stories?page=${page}&limit=4`);
+                const data = await res.json();
+                if(data.success) {
+                    const grid = document.getElementById('stories-grid');
+                    
+                    if(data.data.length === 0 && page === 1) {
+                        grid.innerHTML = '<div class="col-span-full text-center text-gray-500 py-10 bg-white/70 rounded-3xl border border-dashed border-rpurple-100">Belum ada cerita yang dipublikasikan.<br><span class="text-xs text-gray-400">Pastikan status cerita diset menjadi "Published" di panel Admin, bukan "Draft".</span></div>';
+                        updateStoriesBtn(false);
+                        return;
+                    }
+
+                    const html = data.data.map(s => `
+                        <div class="bg-white border border-rpurple-100/70 rounded-3xl overflow-hidden shadow-[0_14px_34px_-22px_rgba(198,84,195,.5)] hover:shadow-[0_20px_44px_-20px_rgba(198,84,195,.6)] transition-shadow flex flex-col">
+                            <img src="${s.thumbnail_url}" alt="${s.title}" class="w-full h-48 object-cover">
+                            <div class="p-5 flex-1 flex flex-col">
+                                <p class="text-xs font-semibold text-rpurple-700 mb-1.5">${formatDate(s.event_date)}</p>
+                                <h3 class="font-serif font-semibold text-[#5E2A78] text-lg leading-snug mb-2 line-clamp-2">${s.title}</h3>
+                                <p class="text-[#7A6683] text-sm mb-4 flex-1 line-clamp-3">${s.short_description}</p>
+                                <a href="/read-stories?slug=${s.slug}" class="text-rpurple-700 font-semibold text-sm hover:text-rpurple-500 transition-colors">Read Story &rarr;</a>
+                            </div>
+                        </div>
+                    `).join('');
+                    if(page === 1) grid.innerHTML = html; else grid.insertAdjacentHTML('beforeend', html);
+                    updateStoriesBtn(data.data.length === 4);
+                }
+            } catch(e) {}
+        }
+
+        // Global Lightbox Array Data
+        let lightboxItems = [];
+        let currentLbIndex = 0;
+
+        // 3. Moments
+        const updateMomentsBtn = setupPagination('moments', loadMoments);
+        async function loadMoments(page) {
+            try {
+                const res = await fetch(`/api/public/moments?page=${page}&limit=4`);
+                const data = await res.json();
+                if(data.success) {
+                    const grid = document.getElementById('moments-grid');
+                    
+                    if(data.data.length === 0 && page === 1) {
+                        grid.innerHTML = '<div class="col-span-full text-center text-gray-500 py-10">Belum ada foto Moments. Silakan tambahkan dari panel Admin.</div>';
+                        updateMomentsBtn(false);
+                        return;
+                    }
+
+                    const html = data.data.map(m => {
+                        const itemIdx = lightboxItems.length;
+                        lightboxItems.push({ type: 'moment', url: m.image_url, title: m.title, date: m.event_date });
+                        
+                        return `
+                        <div class="relative group cursor-pointer rounded-2xl overflow-hidden break-inside-avoid mb-3 sm:mb-4 border-4 border-white ring-1 ring-rpurple-100 shadow-md shadow-rpurple-300/25" onclick="openLightbox(${itemIdx})">
+                            <img src="${m.image_url}" class="block w-full h-auto group-hover:scale-110 transition-transform duration-500">
+                            <div class="absolute inset-0 bg-gradient-to-t from-[#5E2A78]/75 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">
+                                <h4 class="text-white font-medium text-sm line-clamp-1">${m.title}</h4>
+                            </div>
+                        </div>
+                        `;
+                    }).join('');
+                    if(page === 1) grid.innerHTML = html; else grid.insertAdjacentHTML('beforeend', html);
+                    updateMomentsBtn(data.data.length === 4);
+                }
+            } catch(e) {}
+        }
+
+        // 4. Gallery
+        const updateGalleryBtn = setupPagination('gallery', loadGallery);
+        async function loadGallery(page) {
+            try {
+                const res = await fetch(`/api/public/gallery?page=${page}&limit=4`);
+                const data = await res.json();
+                if(data.success) {
+                    const grid = document.getElementById('gallery-grid');
+                    
+                    if(data.data.length === 0 && page === 1) {
+                        grid.innerHTML = '<div class="col-span-full text-center text-gray-500 py-10">Belum ada gambar Gallery. Silakan tambahkan dari panel Admin.</div>';
+                        updateGalleryBtn(false);
+                        return;
+                    }
+
+                    const html = data.data.map(g => {
+                        const itemIdx = lightboxItems.length;
+                        lightboxItems.push({ type: 'gallery', url: g.image_url, title: g.title, date: g.event_date });
+                        
+                        return `
+                        <div class="relative group cursor-pointer rounded-2xl overflow-hidden break-inside-avoid mb-3 sm:mb-4 border-4 border-white ring-1 ring-rpurple-100 shadow-md shadow-rpurple-300/25" onclick="openLightbox(${itemIdx})">
+                            <img src="${g.image_url}" class="block w-full h-auto group-hover:scale-105 transition-transform duration-500">
+                            <div class="absolute inset-0 bg-rpurple-700/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <i class="fas fa-search-plus text-white text-2xl"></i>
+                            </div>
+                        </div>
+                        `;
+                    }).join('');
+                    if(page === 1) grid.innerHTML = html; else grid.insertAdjacentHTML('beforeend', html);
+                    updateGalleryBtn(data.data.length === 4);
+                }
+            } catch(e) {}
+        }
+
+        // 5. Videos
+        // 5. Videos
+const updateVideosBtn = setupPagination('videos', loadVideos);
+async function loadVideos(page) {
+    try {
+        const res = await fetch(`/api/public/videos?page=${page}&limit=4`);
+        const data = await res.json();
+        if(data.success) {
+            const grid = document.getElementById('videos-grid');
+            
+            if(data.data.length === 0 && page === 1) {
+                grid.innerHTML = '<div class="col-span-full text-center text-gray-500 py-10">Belum ada Video. Silakan tambahkan tautan YouTube dari panel Admin.</div>';
+                updateVideosBtn(false);
+                return;
+            }
+            
+            const html = data.data.map(v => {
+                // Cek apakah ada ID YouTube; jika ada, inject iframe dengan autoplay. Jika tidak, buka di tab baru sebagai fallback.
+                const playAction = v.youtube_video_id 
+                    ? `onclick="this.innerHTML=\`<iframe width='100%' height='100%' src='https://www.youtube.com/embed/${v.youtube_video_id}?autoplay=1' frameborder='0' allow='autoplay; encrypted-media' allowfullscreen class='absolute inset-0 w-full h-full'></iframe>\`; this.onclick=null;"` 
+                    : `onclick="window.open('${v.video_url}', '_blank')"`;
+
+                return `
+                <div class="bg-white rounded-3xl overflow-hidden shadow-[0_14px_34px_-22px_rgba(198,84,195,.5)] border border-rpurple-100/70 group">
+                    <div class="relative aspect-video bg-rpurple-50 flex items-center justify-center cursor-pointer" ${playAction}>
+                        ${v.thumbnail_url ? `<img src="${v.thumbnail_url}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity">` : '<i class="fas fa-video text-4xl text-gray-300"></i>'}
+                        
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <div class="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center text-rpurple-500 text-2xl pl-1 shadow-lg transform group-hover:scale-110 transition-transform">
+                                <i class="fas fa-play"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <p class="text-xs font-semibold text-rpurple-700 mb-1.5">${formatDate(v.event_date)}</p>
+                        <h3 class="font-serif font-semibold text-[#5E2A78] text-lg">${v.title}</h3>
+                    </div>
+                </div>
+                `;
+            }).join('');
+            if(page === 1) grid.innerHTML = html; else grid.insertAdjacentHTML('beforeend', html);
+            updateVideosBtn(data.data.length === 4);
+        }
+    } catch(e) {}
+}
+        // 6. Letters
+        const updateLettersBtn = setupPagination('letters', loadLetters);
+        async function loadLetters(page) {
+            try {
+                const res = await fetch(`/api/public/letters?page=${page}&limit=4`);
+                const data = await res.json();
+                if(data.success) {
+                    const container = document.getElementById('letters-container');
+                    
+                    if(data.data.length === 0 && page === 1) {
+                        container.innerHTML = '<div class="text-center text-gray-500 py-10 bg-white/70 rounded-3xl border border-dashed border-rpurple-100">Belum ada surat yang dipublikasikan.<br><span class="text-xs text-gray-400">Pastikan status surat diset menjadi "Published" di panel Admin.</span></div>';
+                        updateLettersBtn(false);
+                        return;
+                    }
+
+                    const html = data.data.map(l => `
+                        <div class="bg-[#FFFBFD] rounded-3xl p-6 sm:p-8 md:p-10 shadow-[0_14px_34px_-24px_rgba(198,84,195,.45)] border border-rpurple-100/70 relative">
+                            <div class="absolute top-4 right-4 text-rpurple-100 text-4xl"><i class="fas fa-quote-right"></i></div>
+                            <p class="text-sm font-semibold text-rpurple-700 mb-3">${formatDate(l.event_date)}</p>
+                            <h3 class="text-2xl sm:text-3xl font-serif font-semibold text-[#5E2A78] mb-5 text-balance pr-8">${l.title}</h3>
+                            <div class="text-[#5B4763] text-[1.0625rem] leading-[1.85] quill-render">
+                                ${l.description_html}
+                            </div>
+                        </div>
+                    `).join('');
+                    if(page === 1) container.innerHTML = html; else container.insertAdjacentHTML('beforeend', html);
+                    updateLettersBtn(data.data.length === 4);
+                }
+            } catch(e) {}
+        }
+
+
+        // --- GLOBAL LIGHTBOX LOGIC ---
+        const glb = document.getElementById('global-lightbox');
+        const glbImg = document.getElementById('glb-img');
+        const glbTitle = document.getElementById('glb-title');
+        const glbDate = document.getElementById('glb-date');
+        const glbCounter = document.getElementById('glb-counter');
+        let currentScale = 1;
+
+        function openLightbox(index) {
+            currentLbIndex = index;
+            updateLightboxContent();
+            glb.classList.remove('hidden');
+            setTimeout(() => glb.classList.remove('opacity-0'), 10);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function updateLightboxContent() {
+            const item = lightboxItems[currentLbIndex];
+            glbImg.src = item.url;
+            glbTitle.textContent = item.title;
+            glbDate.textContent = formatDate(item.date);
+            glbCounter.textContent = `${currentLbIndex + 1} / ${lightboxItems.length}`;
+            resetZoom();
+        }
+
+        function closeGlb() {
+            glb.classList.add('opacity-0');
+            setTimeout(() => {
+                glb.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+                resetZoom();
+            }, 300);
+        }
+
+        function resetZoom() {
+            currentScale = 1;
+            glbImg.style.transform = `scale(${currentScale}) translate(0px, 0px)`;
+        }
+
+        document.getElementById('glb-close').addEventListener('click', closeGlb);
+        
+        document.getElementById('glb-prev').addEventListener('click', (e) => {
+            e.stopPropagation();
+            if(currentLbIndex > 0) { currentLbIndex--; updateLightboxContent(); }
+        });
+        
+        document.getElementById('glb-next').addEventListener('click', (e) => {
+            e.stopPropagation();
+            if(currentLbIndex < lightboxItems.length - 1) { currentLbIndex++; updateLightboxContent(); }
+        });
+
+        document.getElementById('glb-zoom-in').addEventListener('click', (e) => {
+            e.stopPropagation();
+            if(currentScale < 3) { currentScale += 0.5; glbImg.style.transform = `scale(${currentScale}) translate(0px, 0px)`; }
+        });
+
+        document.getElementById('glb-zoom-out').addEventListener('click', (e) => {
+            e.stopPropagation();
+            if(currentScale > 1) { currentScale -= 0.5; glbImg.style.transform = `scale(${currentScale}) translate(0px, 0px)`; }
+        });
+
+        // Keyboard Nav
+        document.addEventListener('keydown', (e) => {
+            if(!glb.classList.contains('hidden')) {
+                if(e.key === 'Escape') closeGlb();
+                if(e.key === 'ArrowLeft' && currentLbIndex > 0) { currentLbIndex--; updateLightboxContent(); }
+                if(e.key === 'ArrowRight' && currentLbIndex < lightboxItems.length - 1) { currentLbIndex++; updateLightboxContent(); }
+            }
+        });
+
+        // Initialize Authentication Check on load
+        checkAuthStatus();
+
+    </script>
+</body>
+</html>

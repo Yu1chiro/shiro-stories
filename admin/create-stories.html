@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Stories - Admin Scrapbook</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script>
+        tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'] }, colors: { sblue: { 50: '#E3F2FD', 200: '#90CAF9', 500: '#2196F3', 900: '#0D47A1' }, rpurple: { 100: '#FFC0DE', 300: '#ED96D7', 500: '#C654C3', 700: '#8E1EA2' } } } } }
+    </script>
+    <style>
+        .ql-editor { min-height: 300px; font-size: 11pt; font-family: 'Inter', sans-serif; line-height: 1.6; }
+        .ql-container.ql-snow { border-radius: 0 0 0.5rem 0.5rem; }
+        .ql-toolbar.ql-snow { border-radius: 0.5rem 0.5rem 0 0; background: #f9fafb; }
+        #toast-container { position: fixed; top: 1rem; right: 1rem; z-index: 100; display: flex; flex-direction: column; gap: 0.5rem; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800 flex h-screen overflow-hidden">
+    
+    <div id="toast-container"></div>
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-20 hidden lg:hidden"></div>
+
+    <aside id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-white border-r border-sblue-100 z-30 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 flex flex-col">
+        <div class="h-16 flex items-center justify-center border-b border-sblue-100"><h2 class="text-xl font-bold text-sblue-900">Scrapbook Admin</h2></div>
+        <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+            <a href="/admin/dashboard" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-sblue-50 hover:text-sblue-600 rounded-lg font-medium transition-colors"><i class="fas fa-home w-5 text-center"></i> Dashboard</a>
+            <a href="/admin/create-personal-profile" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-sblue-50 hover:text-sblue-600 rounded-lg font-medium transition-colors"><i class="fas fa-user-circle w-5 text-center"></i> Personal Profile</a>
+            <a href="/admin/create-stories" class="flex items-center gap-3 px-3 py-2.5 bg-sblue-50 text-sblue-600 rounded-lg font-medium"><i class="fas fa-book-open w-5 text-center"></i> Stories</a>
+            <a href="/admin/create-moments" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-sblue-50 hover:text-sblue-600 rounded-lg font-medium transition-colors"><i class="fas fa-star w-5 text-center"></i> Moments</a>
+            <a href="/admin/create-gallery" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-sblue-50 hover:text-sblue-600 rounded-lg font-medium transition-colors"><i class="fas fa-images w-5 text-center"></i> Gallery</a>
+            <a href="/admin/gallery-video" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-sblue-50 hover:text-sblue-600 rounded-lg font-medium transition-colors"><i class="fas fa-video w-5 text-center"></i> Videos</a>
+            <a href="/admin/create-letters" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-sblue-50 hover:text-sblue-600 rounded-lg font-medium transition-colors"><i class="fas fa-envelope-open-text w-5 text-center"></i> Letters</a>
+            <a href="/admin/create-song" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-sblue-50 hover:text-sblue-600 rounded-lg font-medium transition-colors"><i class="fas fa-music w-5 text-center"></i> Songs</a>
+        </nav>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-full lg:ml-64 w-full relative">
+        <header class="h-16 bg-white border-b border-sblue-100 flex items-center justify-between px-4 sm:px-6 z-10">
+            <div class="flex items-center gap-4">
+                <button id="mobile-menu-btn" class="lg:hidden text-gray-600 text-xl focus:outline-none"><i class="fas fa-bars"></i></button>
+                <h1 class="text-xl font-bold text-sblue-900 hidden sm:block">Manage Stories</h1>
+            </div>
+            <button onclick="openFormModal()" class="bg-sblue-500 hover:bg-sblue-900 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm"><i class="fas fa-plus mr-1"></i> Add Story</button>
+        </header>
+
+        <div class="flex-1 overflow-auto p-4 sm:p-6">
+            <div class="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50 border-b text-xs uppercase text-gray-500 tracking-wider">
+                                <th class="p-4 w-20">Thumb</th><th class="p-4">Title</th><th class="p-4">Date</th><th class="p-4">Status</th><th class="p-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body" class="text-sm divide-y divide-gray-100">
+                            <tr><td colspan="5" class="p-8 text-center text-gray-400"><i class="fas fa-spinner fa-spin text-2xl"></i></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="p-4 border-t flex justify-between items-center bg-gray-50">
+                    <span id="page-info" class="text-sm text-gray-500">Page 1</span>
+                    <div class="flex gap-2">
+                        <button onclick="changePage(-1)" class="px-3 py-1 bg-white border rounded"><i class="fas fa-chevron-left"></i></button>
+                        <button onclick="changePage(1)" class="px-3 py-1 bg-white border rounded"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="form-modal" class="fixed inset-0 bg-black/60 z-50 hidden flex justify-end">
+            <div class="bg-white w-full max-w-4xl h-full flex flex-col shadow-2xl overflow-hidden relative">
+                <div class="p-6 border-b flex justify-between items-center bg-gray-50">
+                    <h3 id="modal-title" class="text-xl font-bold text-gray-800">Add New Story</h3>
+                    <button onclick="closeFormModal()" class="text-gray-400 hover:text-red-500 text-2xl"><i class="fas fa-times"></i></button>
+                </div>
+                
+                <div class="flex-1 overflow-y-auto p-6">
+                    <form id="data-form" class="space-y-6">
+                        <input type="hidden" id="edit-id">
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div><label class="block text-sm font-medium mb-1">Title *</label><input type="text" id="input-title" required class="w-full border rounded-lg px-3 py-2 outline-none"></div>
+                            <div><label class="block text-sm font-medium mb-1">Slug *</label><input type="text" id="input-slug" required class="w-full border rounded-lg px-3 py-2 outline-none bg-gray-50"></div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div><label class="block text-sm font-medium mb-1">Event Date *</label><input type="date" id="input-date" required class="w-full border rounded-lg px-3 py-2 outline-none"></div>
+                            <div><label class="block text-sm font-medium mb-1">Status</label><select id="input-status" class="w-full border rounded-lg px-3 py-2 outline-none"><option value="draft">Draft</option><option value="published">Published</option></select></div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Main Thumbnail <span id="thumb-req" class="text-red-500">*</span></label>
+                            <input type="file" id="input-thumbnail" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-sblue-50 file:text-sblue-600 cursor-pointer">
+                            <div id="thumb-preview-container" class="mt-2 hidden"><img id="thumb-preview" src="" class="h-32 object-cover rounded-lg border"></div>
+                        </div>
+
+                        <div><label class="block text-sm font-medium mb-1">Short Description *</label><textarea id="input-short-desc" required rows="2" class="w-full border rounded-lg px-3 py-2 outline-none"></textarea></div>
+
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Story Content *</label>
+                            <div id="quill-editor"></div>
+                        </div>
+
+                        <!-- NEW: Optional Gallery Section -->
+                        <div class="p-5 bg-sblue-50/50 rounded-xl border border-sblue-100">
+                            <label class="block text-sm font-bold text-sblue-900 mb-2">Optional Gallery Images <span class="text-xs font-normal text-gray-500">(Displayed below story content)</span></label>
+                            <input type="file" id="input-gallery" multiple accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-sblue-100 file:text-sblue-700 hover:file:bg-sblue-200 cursor-pointer mb-3">
+                            
+                            <!-- Existing Gallery Images -->
+                            <div id="existing-gallery-container" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 mb-3 hidden">
+                                <!-- Rendered via JS -->
+                            </div>
+                            
+                            <!-- New Gallery Previews -->
+                            <div id="new-gallery-container" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                                <!-- Rendered via JS -->
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="p-4 border-t bg-gray-50 flex justify-end gap-3">
+                    <button type="button" onclick="closeFormModal()" class="px-5 py-2 border rounded-lg text-gray-600 hover:bg-gray-100">Cancel</button>
+                    <button type="button" onclick="saveData()" id="btn-save" class="px-5 py-2 bg-sblue-500 hover:bg-sblue-900 text-white rounded-lg flex items-center gap-2">
+                        <i class="fas fa-save"></i> Save Story
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="confirm-modal" class="fixed inset-0 bg-black/60 z-[60] hidden items-center justify-center p-4">
+            <div class="bg-white rounded-xl p-6 text-center w-80 shadow-xl">
+                <i class="fas fa-trash-alt text-4xl text-red-500 mb-4"></i><h3 class="text-xl font-bold mb-2">Delete Story?</h3>
+                <div class="flex justify-center gap-3 mt-4"><button onclick="closeConfirmModal()" class="px-4 py-2 border rounded-lg">Cancel</button><button id="btn-confirm-delete" class="px-4 py-2 bg-red-500 text-white rounded-lg">Delete</button></div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <script>
+        const toast = (msg, isErr=false) => { const t = document.createElement('div'); t.className = `px-4 py-3 rounded shadow-lg text-white text-sm font-medium ${isErr?'bg-red-600':'bg-green-600'}`; t.innerHTML = `<i class="fas ${isErr?'fa-exclamation-circle':'fa-check-circle'}"></i> ${msg}`; document.getElementById('toast-container').appendChild(t); setTimeout(() => { t.remove(); }, 3000); };
+        const fileToBase64 = (file) => new Promise((resolve) => { const r = new FileReader(); r.readAsDataURL(file); r.onload = () => resolve(r.result); });
+
+        document.getElementById('mobile-menu-btn').addEventListener('click', () => { document.getElementById('sidebar').classList.remove('-translate-x-full'); document.getElementById('sidebar-overlay').classList.remove('hidden'); });
+        document.getElementById('sidebar-overlay').addEventListener('click', () => { document.getElementById('sidebar').classList.add('-translate-x-full'); document.getElementById('sidebar-overlay').classList.add('hidden'); });
+
+        const quill = new Quill('#quill-editor', { theme: 'snow', modules: { toolbar: { container: [ [{ 'header': [1, 2, 3, false] }], ['bold', 'italic', 'underline'], [{ 'list': 'ordered'}, { 'list': 'bullet' }], [{ 'align': [] }], ['blockquote', 'link', 'image'], ['clean'] ], handlers: { image: imageHandler } } } });
+
+        async function imageHandler() {
+            const input = document.createElement('input'); input.setAttribute('type', 'file'); input.setAttribute('accept', 'image/*'); input.click();
+            input.onchange = async () => {
+                if(!input.files[0]) return;
+                try {
+                    toast('Uploading to ImageKit...'); const base64 = await fileToBase64(input.files[0]);
+                    const res = await fetch('/api/admin/uploads/image', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ image: base64, folder: 'stories-content' }) });
+                    const data = await res.json();
+                    if(data.success) { quill.insertEmbed(quill.getSelection().index, 'image', data.url); toast('Inserted!'); }
+                } catch (e) { toast('Upload failed', true); }
+            };
+        }
+
+        document.getElementById('input-title').addEventListener('input', function() { if(!document.getElementById('edit-id').value) document.getElementById('input-slug').value = this.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''); });
+
+        let thumbBase64 = null;
+        document.getElementById('input-thumbnail').addEventListener('change', async (e) => {
+            if(e.target.files[0]) { thumbBase64 = await fileToBase64(e.target.files[0]); document.getElementById('thumb-preview').src = thumbBase64; document.getElementById('thumb-preview-container').classList.remove('hidden'); }
+        });
+
+        // --- NEW GALLERY LOGIC ---
+        let newGalleryImages = [];
+        let deletedGalleryIds = [];
+
+        document.getElementById('input-gallery').addEventListener('change', async (e) => {
+            const files = Array.from(e.target.files);
+            if(files.length === 0) return;
+            toast(`Processing ${files.length} images...`);
+            
+            for (let f of files) {
+                if(f.size > 5 * 1024 * 1024) { toast(`File ${f.name} too large`, true); continue; }
+                const b64 = await fileToBase64(f);
+                newGalleryImages.push({ name: f.name, base64: b64 });
+            }
+            renderNewGallery();
+            document.getElementById('input-gallery').value = ''; // Reset input
+        });
+
+        function renderNewGallery() {
+            const container = document.getElementById('new-gallery-container');
+            container.innerHTML = newGalleryImages.map((img, idx) => `
+                <div class="relative group aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
+                    <img src="${img.base64}" class="w-full h-full object-cover">
+                    <button type="button" onclick="removeNewGallery(${idx})" class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><i class="fas fa-times text-xs"></i></button>
+                </div>
+            `).join('');
+        }
+
+        window.removeNewGallery = (idx) => { newGalleryImages.splice(idx, 1); renderNewGallery(); };
+
+        window.removeExistingGallery = (id, elId) => {
+            deletedGalleryIds.push(id);
+            document.getElementById(elId).style.display = 'none';
+        };
+        // ------------------------
+
+        let currentPage = 1, limit = 10, deleteId = null;
+
+        async function loadData() {
+            try {
+                const res = await fetch(`/api/admin/stories?page=${currentPage}&limit=${limit}`); const data = await res.json();
+                if(data.success) {
+                    document.getElementById('page-info').textContent = `Page ${currentPage}`;
+                    document.getElementById('table-body').innerHTML = data.data.length ? data.data.map(item => `
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="p-4"><img src="${item.thumbnail_url}" class="w-12 h-12 rounded object-cover"></td>
+                            <td class="p-4 font-medium">${item.title}</td><td class="p-4">${new Date(item.event_date).toLocaleDateString('id-ID')}</td>
+                            <td class="p-4"><span class="px-2 py-1 rounded text-xs ${item.status === 'published' ? 'bg-green-100 text-green-700' : 'bg-gray-100'}">${item.status}</span></td>
+                            <td class="p-4 text-right space-x-2">
+                                <a href="/read-stories?slug=${item.slug}" target="_blank" class="w-8 h-8 inline-flex items-center justify-center rounded bg-gray-100"><i class="fas fa-eye"></i></a>
+                                <button onclick="editData(${item.id})" class="w-8 h-8 rounded bg-sblue-50 text-sblue-600"><i class="fas fa-edit"></i></button> <button onclick="confirmDelete(${item.id})" class="w-8 h-8 rounded bg-red-50 text-red-600"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    `).join('') : '<tr><td colspan="5" class="p-8 text-center text-gray-500">No stories found.</td></tr>';
+                }
+            } catch(e) {}
+        }
+        function changePage(d) { if(d === -1 && currentPage > 1) { currentPage--; loadData(); } else if(d === 1) { currentPage++; loadData(); } }
+
+        function openFormModal() {
+            document.getElementById('edit-id').value = ''; document.getElementById('data-form').reset();
+            quill.root.innerHTML = ''; thumbBase64 = null; document.getElementById('thumb-preview-container').classList.add('hidden');
+            document.getElementById('modal-title').textContent = 'Add New Story'; document.getElementById('thumb-req').classList.remove('hidden'); document.getElementById('input-thumbnail').required = true;
+            
+            newGalleryImages = []; deletedGalleryIds = []; renderNewGallery();
+            document.getElementById('existing-gallery-container').classList.add('hidden');
+            document.getElementById('existing-gallery-container').innerHTML = '';
+
+            document.getElementById('form-modal').classList.remove('hidden');
+        }
+        function closeFormModal() { document.getElementById('form-modal').classList.add('hidden'); }
+
+        async function editData(id) {
+            toast('Loading...');
+            const res = await fetch(`/api/admin/stories/${id}`); const data = await res.json();
+            if(data.success) {
+                const s = data.data;
+                document.getElementById('edit-id').value = s.id; document.getElementById('input-title').value = s.title; document.getElementById('input-slug').value = s.slug; document.getElementById('input-date').value = s.event_date.split('T')[0]; document.getElementById('input-status').value = s.status; document.getElementById('input-short-desc').value = s.short_description; quill.root.innerHTML = s.content_html;
+                document.getElementById('thumb-preview').src = s.thumbnail_url; document.getElementById('thumb-preview-container').classList.remove('hidden');
+                document.getElementById('modal-title').textContent = 'Edit Story'; document.getElementById('thumb-req').classList.add('hidden'); document.getElementById('input-thumbnail').required = false; thumbBase64 = null;
+                
+                newGalleryImages = []; deletedGalleryIds = []; renderNewGallery();
+                const existCont = document.getElementById('existing-gallery-container');
+                if(s.gallery && s.gallery.length > 0) {
+                    existCont.innerHTML = s.gallery.map(g => `
+                        <div id="ext-gal-${g.id}" class="relative group aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
+                            <img src="${g.image_url}" class="w-full h-full object-cover">
+                            <button type="button" onclick="removeExistingGallery(${g.id}, 'ext-gal-${g.id}')" class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><i class="fas fa-trash text-xs"></i></button>
+                        </div>
+                    `).join('');
+                    existCont.classList.remove('hidden');
+                } else {
+                    existCont.classList.add('hidden'); existCont.innerHTML = '';
+                }
+
+                document.getElementById('form-modal').classList.remove('hidden');
+            }
+        }
+
+        async function saveData() {
+            const id = document.getElementById('edit-id').value, title = document.getElementById('input-title').value, slug = document.getElementById('input-slug').value, date = document.getElementById('input-date').value, status = document.getElementById('input-status').value, shortDesc = document.getElementById('input-short-desc').value, content = quill.root.innerHTML;
+            if(!title || !slug || !date || !shortDesc || quill.getText().trim() === '') return toast('Required fields missing', true);
+            if(!id && !thumbBase64) return toast('Thumbnail required', true);
+
+            const payload = { title, slug, event_date: date, status, short_description: shortDesc, content_html: content };
+            if(thumbBase64) payload.imageBase64 = thumbBase64;
+            
+            if(newGalleryImages.length > 0) payload.newGalleryImages = newGalleryImages.map(img => img.base64);
+            if(deletedGalleryIds.length > 0) payload.deletedGalleryIds = deletedGalleryIds;
+
+            const btn = document.getElementById('btn-save'); btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            try {
+                const res = await fetch(id ? `/api/admin/stories/${id}` : '/api/admin/stories', { method: id ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                if((await res.json()).success) { toast('Saved!'); closeFormModal(); loadData(); }
+            } catch(e) { toast('Error saving data', true); } finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Save Story'; }
+        }
+
+        function confirmDelete(id) { deleteId = id; document.getElementById('confirm-modal').classList.remove('hidden'); document.getElementById('confirm-modal').classList.add('flex'); }
+        function closeConfirmModal() { document.getElementById('confirm-modal').classList.add('hidden'); document.getElementById('confirm-modal').classList.remove('flex'); }
+        document.getElementById('btn-confirm-delete').addEventListener('click', async () => { await fetch(`/api/admin/stories/${deleteId}`, { method: 'DELETE' }); closeConfirmModal(); loadData(); toast('Deleted'); });
+
+        loadData();
+    </script>
+</body>
+</html>

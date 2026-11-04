@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Letters - Admin Scrapbook</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script>
+        tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'] }, colors: { sblue: { 50: '#E3F2FD', 200: '#90CAF9', 500: '#2196F3', 900: '#0D47A1' }, rpurple: { 100: '#FFC0DE', 300: '#ED96D7', 500: '#C654C3', 700: '#8E1EA2' } } } } }
+    </script>
+    <style>
+        .ql-editor { min-height: 250px; font-size: 11pt; font-family: 'Inter', sans-serif; line-height: 1.6; }
+        .ql-container.ql-snow { border-radius: 0 0 0.5rem 0.5rem; }
+        .ql-toolbar.ql-snow { border-radius: 0.5rem 0.5rem 0 0; background: #f9fafb; }
+        #toast-container { position: fixed; top: 1rem; right: 1rem; z-index: 100; display: flex; flex-direction: column; gap: 0.5rem; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800 flex h-screen overflow-hidden">
+    
+    <div id="toast-container"></div>
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-20 hidden lg:hidden"></div>
+
+    <aside id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-white border-r border-sblue-100 z-30 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 flex flex-col">
+        <div class="h-16 flex items-center justify-center border-b border-sblue-100"><h2 class="text-xl font-bold text-sblue-900">Scrapbook Admin</h2></div>
+        <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+            <a href="/admin/dashboard" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-sblue-50 hover:text-sblue-600 rounded-lg font-medium transition-colors"><i class="fas fa-home w-5 text-center"></i> Dashboard</a>
+            <a href="/admin/create-personal-profile" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-sblue-50 hover:text-sblue-600 rounded-lg font-medium transition-colors"><i class="fas fa-user-circle w-5 text-center"></i> Personal Profile</a>
+            <a href="/admin/create-stories" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-sblue-50 hover:text-sblue-600 rounded-lg font-medium transition-colors"><i class="fas fa-book-open w-5 text-center"></i> Stories</a>
+            <a href="/admin/create-moments" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-sblue-50 hover:text-sblue-600 rounded-lg font-medium transition-colors"><i class="fas fa-star w-5 text-center"></i> Moments</a>
+            <a href="/admin/create-gallery" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-sblue-50 hover:text-sblue-600 rounded-lg font-medium transition-colors"><i class="fas fa-images w-5 text-center"></i> Gallery</a>
+            <a href="/admin/gallery-video" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-sblue-50 hover:text-sblue-600 rounded-lg font-medium transition-colors"><i class="fas fa-video w-5 text-center"></i> Videos</a>
+            <a href="/admin/create-letters" class="flex items-center gap-3 px-3 py-2.5 bg-sblue-50 text-sblue-600 rounded-lg font-medium"><i class="fas fa-envelope-open-text w-5 text-center"></i> Letters</a>
+            <a href="/admin/create-song" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-sblue-50 hover:text-sblue-600 rounded-lg font-medium transition-colors"><i class="fas fa-music w-5 text-center"></i> Songs</a>
+        </nav>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-full lg:ml-64 w-full relative">
+        <header class="h-16 bg-white border-b border-sblue-100 flex items-center justify-between px-4 sm:px-6 z-10">
+            <div class="flex items-center gap-4">
+                <button id="mobile-menu-btn" class="lg:hidden text-gray-600 text-xl"><i class="fas fa-bars"></i></button>
+                <h1 class="text-xl font-bold text-sblue-900 hidden sm:block">Manage Letters</h1>
+            </div>
+            <button onclick="openFormModal()" class="bg-sblue-500 hover:bg-sblue-900 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm"><i class="fas fa-plus mr-1"></i> Add Letter</button>
+        </header>
+
+        <div class="flex-1 overflow-auto p-4 sm:p-6">
+            <div class="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead><tr class="bg-gray-50 border-b text-xs uppercase text-gray-500">
+                        <th class="p-4">Title</th><th class="p-4">Date</th><th class="p-4">Status</th><th class="p-4 text-right">Actions</th>
+                    </tr></thead>
+                    <tbody id="table-body" class="text-sm divide-y divide-gray-100"></tbody>
+                </table>
+                <div class="p-4 border-t flex justify-between items-center bg-gray-50">
+                    <span id="page-info" class="text-sm text-gray-500">Page 1</span>
+                    <div class="flex gap-2">
+                        <button onclick="changePage(-1)" class="px-3 py-1 bg-white border rounded"><i class="fas fa-chevron-left"></i></button>
+                        <button onclick="changePage(1)" class="px-3 py-1 bg-white border rounded"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Modal Overlay -->
+        <div id="form-modal" class="fixed inset-0 bg-black/60 z-50 hidden flex justify-end">
+            <div class="bg-white w-full max-w-3xl h-full flex flex-col shadow-2xl relative">
+                <div class="p-6 border-b flex justify-between bg-gray-50">
+                    <h3 id="modal-title" class="text-xl font-bold">Add Letter</h3>
+                    <button onclick="closeFormModal()" class="text-gray-400 hover:text-red-500 text-2xl"><i class="fas fa-times"></i></button>
+                </div>
+                
+                <div class="flex-1 overflow-y-auto p-6">
+                    <form id="data-form" class="space-y-4">
+                        <input type="hidden" id="edit-id">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div><label class="block text-sm font-medium mb-1">Title *</label><input type="text" id="input-title" required class="w-full border rounded-lg px-3 py-2 outline-none"></div>
+                            <div><label class="block text-sm font-medium mb-1">Date *</label><input type="date" id="input-date" required class="w-full border rounded-lg px-3 py-2 outline-none"></div>
+                        </div>
+                        <div><label class="block text-sm font-medium mb-1">Status</label><select id="input-status" class="w-full border rounded-lg px-3 py-2 outline-none"><option value="draft">Draft</option><option value="published">Published</option></select></div>
+                        <div><label class="block text-sm font-medium mb-1">Letter Content *</label><div id="quill-editor" class="bg-white"></div></div>
+                    </form>
+                </div>
+                
+                <div class="p-4 border-t bg-gray-50 flex justify-end gap-3">
+                    <button onclick="closeFormModal()" class="px-5 py-2 border rounded-lg">Cancel</button>
+                    <button onclick="saveData()" id="btn-save" class="px-5 py-2 bg-sblue-500 text-white rounded-lg"><i class="fas fa-save"></i> Save</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="confirm-modal" class="fixed inset-0 bg-black/60 z-[60] hidden items-center justify-center p-4">
+            <div class="bg-white rounded-xl p-6 text-center w-80">
+                <i class="fas fa-trash-alt text-4xl text-red-500 mb-4"></i><h3 class="text-xl font-bold mb-4">Delete Letter?</h3>
+                <div class="flex justify-center gap-3"><button onclick="closeConfirmModal()" class="px-4 py-2 border rounded-lg">Cancel</button><button id="btn-confirm-delete" class="px-4 py-2 bg-red-500 text-white rounded-lg">Delete</button></div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <script>
+        const toast = (msg, isErr=false) => { const t = document.createElement('div'); t.className = `px-4 py-3 rounded shadow text-white text-sm mb-2 ${isErr ? 'bg-red-600':'bg-green-600'}`; t.textContent = msg; document.getElementById('toast-container').appendChild(t); setTimeout(()=>t.remove(), 3000); };
+        
+        document.getElementById('mobile-menu-btn').addEventListener('click', () => { document.getElementById('sidebar').classList.remove('-translate-x-full'); document.getElementById('sidebar-overlay').classList.remove('hidden'); });
+        document.getElementById('sidebar-overlay').addEventListener('click', () => { document.getElementById('sidebar').classList.add('-translate-x-full'); document.getElementById('sidebar-overlay').classList.add('hidden'); });
+
+        const quill = new Quill('#quill-editor', { theme: 'snow', modules: { toolbar: [ [{ 'header': [1, 2, 3, false] }], ['bold', 'italic', 'underline'], [{ 'list': 'ordered'}, { 'list': 'bullet' }], [{ 'align': [] }], ['blockquote', 'link'], ['clean'] ] } });
+
+        let currentPage = 1, limit = 10, deleteId = null;
+
+        async function loadData() {
+            try {
+                const res = await fetch(`/api/admin/letters?page=${currentPage}&limit=${limit}`); const data = await res.json();
+                if(data.success) {
+                    document.getElementById('page-info').textContent = `Page ${currentPage}`;
+                    document.getElementById('table-body').innerHTML = data.data.length ? data.data.map(i => `
+                        <tr class="border-b hover:bg-gray-50"><td class="p-4 font-medium">${i.title}</td><td class="p-4">${new Date(i.event_date).toLocaleDateString('id-ID')}</td><td class="p-4"><span class="px-2 py-1 rounded text-xs ${i.status==='published'?'bg-green-100 text-green-700':'bg-gray-100 text-gray-500'}">${i.status}</span></td><td class="p-4 text-right"><button onclick="editData(${i.id})" class="text-sblue-600 bg-sblue-50 w-8 h-8 rounded"><i class="fas fa-edit"></i></button> <button onclick="confirmDelete(${i.id})" class="text-red-600 bg-red-50 w-8 h-8 rounded"><i class="fas fa-trash"></i></button></td></tr>
+                    `).join('') : '<tr><td colspan="4" class="p-4 text-center">No letters found.</td></tr>';
+                }
+            } catch(e) {}
+        }
+        function changePage(d) { if(d===-1 && currentPage>1) currentPage--; else if(d===1) currentPage++; loadData(); }
+
+        function openFormModal() { document.getElementById('edit-id').value = ''; document.getElementById('data-form').reset(); quill.root.innerHTML = ''; document.getElementById('modal-title').textContent = 'Add Letter'; document.getElementById('form-modal').classList.remove('hidden'); }
+        function closeFormModal() { document.getElementById('form-modal').classList.add('hidden'); }
+
+        async function editData(id) {
+            const res = await fetch(`/api/admin/letters/${id}`); const data = await res.json();
+            if(data.success) {
+                document.getElementById('edit-id').value = data.data.id; document.getElementById('input-title').value = data.data.title;
+                document.getElementById('input-date').value = data.data.event_date.split('T')[0]; document.getElementById('input-status').value = data.data.status;
+                quill.root.innerHTML = data.data.description_html;
+                document.getElementById('modal-title').textContent = 'Edit Letter'; document.getElementById('form-modal').classList.remove('hidden');
+            }
+        }
+
+        async function saveData() {
+            const id = document.getElementById('edit-id').value, title = document.getElementById('input-title').value, date = document.getElementById('input-date').value, status = document.getElementById('input-status').value, desc = quill.root.innerHTML;
+            if(!title || !date || quill.getText().trim() === '') return toast('Fields required', true);
+            const btn = document.getElementById('btn-save'); btn.disabled = true; btn.textContent = 'Saving...';
+            try {
+                const res = await fetch(id ? `/api/admin/letters/${id}` : '/api/admin/letters', { method: id ? 'PUT' : 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({title, event_date:date, status, description_html:desc}) });
+                if((await res.json()).success) { toast('Saved!'); closeFormModal(); loadData(); }
+            } catch(e) {} finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Save'; }
+        }
+
+        function confirmDelete(id) { deleteId = id; document.getElementById('confirm-modal').classList.remove('hidden'); document.getElementById('confirm-modal').classList.add('flex'); }
+        function closeConfirmModal() { document.getElementById('confirm-modal').classList.add('hidden'); document.getElementById('confirm-modal').classList.remove('flex'); }
+        document.getElementById('btn-confirm-delete').addEventListener('click', async () => { await fetch(`/api/admin/letters/${deleteId}`, { method: 'DELETE' }); closeConfirmModal(); loadData(); toast('Deleted'); });
+
+        loadData();
+    </script>
+</body>
+</html>

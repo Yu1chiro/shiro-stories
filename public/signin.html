@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Hiro & Shika</title>
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        sblue: { 50: '#E3F2FD', 200: '#90CAF9', 500: '#2196F3', 900: '#0D47A1' },
+                        rpurple: { 100: '#FFC0DE', 300: '#ED96D7', 500: '#C654C3', 700: '#8E1EA2' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-sblue-50 font-sans min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md border border-sblue-200 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-sblue-500 to-rpurple-500"></div>
+        
+        <div class="text-center mb-8">
+            <h1 class="text-2xl font-bold text-sblue-900 mb-2">Admin Access</h1>
+            <p class="text-gray-500 text-sm">Sign in to manage the scrapbook</p>
+        </div>
+
+        <form id="loginForm" class="space-y-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-user text-gray-400"></i>
+                    </div>
+                    <input type="text" id="username" required
+                        class="pl-10 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sblue-500 focus:border-sblue-500 outline-none transition-colors">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-lock text-gray-400"></i>
+                    </div>
+                    <input type="password" id="password" required
+                        class="pl-10 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sblue-500 focus:border-sblue-500 outline-none transition-colors">
+                </div>
+            </div>
+
+            <div id="errorMessage" class="hidden bg-red-50 text-red-600 text-sm p-3 rounded-lg text-center"></div>
+
+            <button type="submit" id="submitBtn"
+                class="w-full bg-sblue-500 hover:bg-sblue-900 text-white font-medium py-2.5 rounded-lg transition-colors flex justify-center items-center gap-2">
+                <span>Sign In</span>
+                <i class="fas fa-arrow-right text-sm"></i>
+            </button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            const err = document.getElementById('errorMessage');
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Authenticating...';
+            err.classList.add('hidden');
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: document.getElementById('username').value,
+                        password: document.getElementById('password').value
+                    })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    window.location.href = '/admin/dashboard';
+                } else {
+                    err.textContent = data.message;
+                    err.classList.remove('hidden');
+                    btn.disabled = false;
+                    btn.innerHTML = '<span>Sign In</span><i class="fas fa-arrow-right text-sm"></i>';
+                }
+            } catch (error) {
+                err.textContent = 'Server error. Please try again.';
+                err.classList.remove('hidden');
+                btn.disabled = false;
+                btn.innerHTML = '<span>Sign In</span><i class="fas fa-arrow-right text-sm"></i>';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#FFF1F7">
+    <title>Read Story - Hiro & Shika</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Nunito', 'ui-sans-serif', 'sans-serif'],
+                        serif: ['Playfair Display', 'Georgia', 'serif']
+                    },
+                    colors: {
+                        sblue: { 50: '#E3F2FD', 100: '#EEF7FF', 200: '#90CAF9', 500: '#2196F3', 900: '#0D47A1' },
+                        rpurple: { 50: '#FFF5FA', 100: '#FFC0DE', 300: '#ED96D7', 500: '#C654C3', 700: '#8E1EA2' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --blush: #FFF1F7;
+            --lilac: #F4ECFF;
+            --sky: #E8F4FF;
+            --plum: #5E2A78;
+            --ink: #5B4763;
+        }
+
+        html { -webkit-text-size-adjust: 100%; }
+
+        body {
+            min-height: 100dvh;
+            background: linear-gradient(170deg, var(--blush) 0%, var(--lilac) 48%, var(--sky) 100%);
+            color: var(--ink);
+        }
+
+        /* Soft pastel glow di pojok halaman (dekoratif, statis) */
+        body::before, body::after {
+            content: ""; position: fixed; z-index: 0; pointer-events: none; border-radius: 9999px;
+        }
+        body::before {
+            top: -8rem; left: -8rem; width: 22rem; height: 22rem;
+            background: radial-gradient(circle, rgba(255, 192, 222, .55), transparent 70%);
+        }
+        body::after {
+            bottom: -9rem; right: -8rem; width: 26rem; height: 26rem;
+            background: radial-gradient(circle, rgba(144, 202, 249, .45), transparent 70%);
+        }
+
+        ::selection { background: #FFC0DE; color: var(--plum); }
+
+        a:focus-visible, button:focus-visible {
+            outline: 2px solid #C654C3; outline-offset: 3px;
+        }
+
+        .text-balance { text-wrap: balance; }
+
+        /* Satu momen masuk yang lembut saat cerita tampil */
+        @keyframes softIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+        #story-content { animation: softIn .7s ease both; }
+        @media (prefers-reduced-motion: reduce) {
+            #story-content { animation: none; }
+            * { transition-duration: .01ms !important; }
+        }
+
+        /* ===== Isi cerita (output Quill) ===== */
+        .quill-content {
+            max-width: 40rem; margin: 0 auto;
+            font-size: 1.0625rem; line-height: 1.85; color: var(--ink);
+            overflow-wrap: anywhere;
+        }
+        @media (min-width: 640px) { .quill-content { font-size: 1.125rem; } }
+
+        .quill-content h1, .quill-content h2, .quill-content h3 {
+            font-family: 'Playfair Display', Georgia, serif; line-height: 1.3; text-wrap: balance;
+        }
+        .quill-content h1 { font-size: clamp(1.65rem, 5vw, 2.15rem); font-weight: 700; margin: 2em 0 .5em; color: var(--plum); }
+        .quill-content h2 { font-size: clamp(1.4rem, 4vw, 1.7rem); font-weight: 600; margin: 1.6em 0 .5em; color: #A63DA6; }
+        .quill-content h3 { font-size: clamp(1.2rem, 3.5vw, 1.35rem); font-weight: 600; font-style: italic; margin: 1.3em 0 .5em; color: #4F79C2; }
+        .quill-content > :first-child { margin-top: 0; }
+
+        .quill-content p { margin-bottom: 1.1em; }
+        .quill-content strong { color: var(--plum); font-weight: 700; }
+
+        .quill-content img {
+            display: block; max-width: 100%; height: auto; margin: 1.75rem auto;
+            border: 5px solid #fff; border-radius: 1.25rem; cursor: pointer;
+            box-shadow: 0 12px 30px -14px rgba(198, 84, 195, .5);
+        }
+        .quill-content iframe, .quill-content video {
+            display: block; width: 100%; max-width: 100%; aspect-ratio: 16 / 9; height: auto;
+            border: 0; border-radius: 1.25rem; margin: 1.75rem 0;
+        }
+
+        .quill-content ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1.1em; }
+        .quill-content ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 1.1em; }
+        .quill-content li { padding-left: .25rem; margin-bottom: .35em; }
+        .quill-content li::marker { color: #ED96D7; }
+
+        .quill-content blockquote {
+            position: relative; margin: 1.75rem 0; padding: 1.25rem 1.25rem 1.25rem 3.25rem;
+            font-family: 'Playfair Display', Georgia, serif; font-style: italic; font-size: 1.05em; line-height: 1.75;
+            color: #7A4A8A; border-radius: 1.25rem;
+            background: linear-gradient(135deg, #FFF5FA, #F4ECFF);
+            border: 1px solid rgba(237, 150, 215, .35);
+        }
+        .quill-content blockquote::before {
+            content: "\201C"; position: absolute; left: 1rem; top: .35rem;
+            font-size: 3rem; line-height: 1; color: #ED96D7;
+        }
+
+        .quill-content a { color: #A63DA6; text-decoration: underline; text-decoration-color: #ED96D7; text-underline-offset: 3px; }
+        .quill-content hr { border: 0; border-top: 2px dotted #F6C9E8; margin: 2rem 0; }
+
+        /* Alignment bawaan Quill */
+        .quill-content .ql-align-center { text-align: center; }
+        .quill-content .ql-align-right { text-align: right; }
+        .quill-content .ql-align-justify { text-align: justify; }
+    </style>
+</head>
+<body class="font-sans antialiased">
+
+    <nav class="fixed top-0 w-full bg-white/70 backdrop-blur-lg border-b border-rpurple-100/60 shadow-[0_6px_20px_-12px_rgba(198,84,195,.35)] z-40 pt-[env(safe-area-inset-top)]">
+        <div class="max-w-4xl mx-auto px-4 py-2.5 sm:py-3 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-1.5 font-serif italic text-xl sm:text-2xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-sblue-500 to-rpurple-500">
+                H & S <i class="fas fa-heart text-[10px] text-rpurple-300 not-italic" aria-hidden="true"></i>
+            </a>
+            <a href="/" class="inline-flex items-center gap-2 rounded-full bg-white/80 border border-rpurple-100 px-3.5 py-2 text-sm font-semibold text-rpurple-700 hover:bg-rpurple-100/60 transition-colors">
+                <i class="fas fa-arrow-left text-xs"></i> Back to Scrapbook
+            </a>
+        </div>
+    </nav>
+
+    <main id="article-container" class="relative z-10 pt-20 sm:pt-24 pb-16 sm:pb-20 px-3 sm:px-6 max-w-4xl mx-auto min-h-screen">
+        <div id="loading" class="flex justify-center items-center py-24"><i class="fas fa-circle-notch fa-spin text-4xl text-rpurple-300"></i></div>
+
+        <article id="story-content" class="hidden bg-white/85 backdrop-blur-sm rounded-[1.75rem] sm:rounded-[2.25rem] border border-white ring-1 ring-rpurple-100/60 shadow-[0_24px_60px_-28px_rgba(198,84,195,.45)] overflow-hidden">
+            <!-- Thumbnail tetap object-contain (utuh, tidak terpotong), latar pastel lembut -->
+            <div class="w-full flex justify-center items-center overflow-hidden bg-gradient-to-br from-rpurple-100/60 via-[#F4ECFF] to-sblue-200/50">
+                <img id="story-thumbnail" class="w-full max-h-[45vh] sm:max-h-[55vh] object-contain cursor-pointer" src="" alt="Thumbnail">
+            </div>
+
+            <div class="px-5 py-8 sm:px-10 sm:py-12 md:px-14">
+                <div class="text-center mb-8 sm:mb-10">
+                    <span class="inline-flex items-center gap-2 rounded-full bg-rpurple-100/50 border border-rpurple-100 px-4 py-1.5 mb-4">
+                        <i class="fas fa-heart text-[10px] text-rpurple-500" aria-hidden="true"></i>
+                        <p id="story-date" class="text-xs sm:text-sm font-semibold tracking-wide text-rpurple-700"></p>
+                    </span>
+                    <h1 id="story-title" class="font-serif font-semibold text-[1.75rem] sm:text-4xl md:text-[2.75rem] leading-[1.2] text-[#5E2A78] text-balance"></h1>
+
+                    <div class="flex items-center justify-center gap-3 mt-6 text-rpurple-300" aria-hidden="true">
+                        <span class="h-px w-14 sm:w-24 bg-gradient-to-r from-transparent to-rpurple-300/70"></span>
+                        <i class="fas fa-heart text-xs"></i>
+                        <span class="h-px w-14 sm:w-24 bg-gradient-to-l from-transparent to-rpurple-300/70"></span>
+                    </div>
+                </div>
+
+                <div id="story-body" class="quill-content"></div>
+
+                <!-- Story Additional Gallery -->
+                <div id="story-gallery-section" class="hidden mt-12 pt-10 max-w-3xl mx-auto">
+                    <div class="flex items-center justify-center gap-3 mb-6 text-rpurple-300">
+                        <span class="h-px w-10 sm:w-16 bg-gradient-to-r from-transparent to-rpurple-300/70" aria-hidden="true"></span>
+                        <h3 class="font-serif italic text-xl sm:text-2xl font-semibold text-[#5E2A78] text-center">Gallery</h3>
+                        <span class="h-px w-10 sm:w-16 bg-gradient-to-l from-transparent to-rpurple-300/70" aria-hidden="true"></span>
+                    </div>
+                    <div id="story-gallery" class="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+                        <!-- Rendered dynamically -->
+                    </div>
+                </div>
+
+            </div>
+        </article>
+
+        <div id="error-state" class="hidden text-center py-20 px-4">
+            <div class="w-20 h-20 bg-rose-100 text-rose-400 rounded-full flex items-center justify-center mx-auto mb-5 text-3xl shadow-inner"><i class="fas fa-exclamation-triangle"></i></div>
+            <h2 class="font-serif text-2xl sm:text-3xl font-semibold text-[#5E2A78] mb-2">Story Not Found</h2>
+            <p class="text-[#8A7592] mb-7 max-w-sm mx-auto">The story you are looking for doesn't exist or is not published yet.</p>
+            <a href="/" class="inline-block bg-gradient-to-r from-sblue-500 to-rpurple-500 text-white font-semibold px-7 py-3 rounded-full shadow-md shadow-rpurple-300/40 hover:from-sblue-900 hover:to-rpurple-700 transition-all">Return Home</a>
+        </div>
+    </main>
+
+    <!-- Lightbox -->
+    <div id="lightbox" class="fixed inset-0 bg-[#2A1530]/95 z-[100] hidden flex flex-col justify-center items-center opacity-0 transition-opacity duration-300">
+        <button id="lb-close" aria-label="Close" class="absolute top-[max(1rem,env(safe-area-inset-top))] right-4 sm:top-6 sm:right-6 w-11 h-11 rounded-full bg-white/15 hover:bg-rpurple-300/40 text-white text-xl flex items-center justify-center transition-colors z-10"><i class="fas fa-times"></i></button>
+        <button id="lb-prev" aria-label="Previous" class="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/15 hover:bg-rpurple-300/40 text-white text-lg md:text-xl flex items-center justify-center transition-colors z-10"><i class="fas fa-chevron-left"></i></button>
+        <button id="lb-next" aria-label="Next" class="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/15 hover:bg-rpurple-300/40 text-white text-lg md:text-xl flex items-center justify-center transition-colors z-10"><i class="fas fa-chevron-right"></i></button>
+        <div class="relative w-full h-full flex justify-center items-center overflow-hidden">
+            <img id="lb-img" class="max-w-[90vw] max-h-[85vh] object-contain rounded-2xl shadow-2xl transition-transform duration-300" src="">
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const slug = urlParams.get('slug');
+        let lightboxImages = [];
+        let currentLbIndex = 0;
+
+        async function fetchStory() {
+            if (!slug) return showError();
+            try {
+                const res = await fetch(`/api/public/stories/${slug}`);
+                if (res.status === 401) { window.location.href = '/'; return; }
+                const data = await res.json();
+                if (data.success) renderStory(data.data); else showError();
+            } catch (err) { showError(); }
+        }
+
+        function renderStory(story) {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('story-content').classList.remove('hidden');
+            
+            document.title = `${story.title} - Hiro & Shika`;
+            document.getElementById('story-thumbnail').src = story.thumbnail_url;
+            document.getElementById('story-title').textContent = story.title;
+            document.getElementById('story-date').textContent = new Date(story.event_date).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+            document.getElementById('story-body').innerHTML = story.content_html;
+
+            // Render Optional Gallery if exists
+            if (story.gallery && story.gallery.length > 0) {
+                const galSection = document.getElementById('story-gallery-section');
+                const galContainer = document.getElementById('story-gallery');
+                galContainer.innerHTML = story.gallery.map(g => `
+                    <div class="relative group cursor-pointer aspect-square rounded-2xl overflow-hidden border-4 border-white ring-1 ring-rpurple-100 shadow-md shadow-rpurple-300/25">
+                        <img src="${g.image_url}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 gal-img">
+                        <div class="absolute inset-0 bg-rpurple-700/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                            <i class="fas fa-expand text-white text-xl"></i>
+                        </div>
+                    </div>
+                `).join('');
+                galSection.classList.remove('hidden');
+            }
+
+            setupLightbox();
+        }
+
+        function showError() {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('error-state').classList.remove('hidden');
+        }
+
+        const lightbox = document.getElementById('lightbox');
+        const lbImg = document.getElementById('lb-img');
+        
+        function setupLightbox() {
+            lightboxImages = [];
+            
+            // Gather all images including thumbnail for Lightbox support
+            const thumbImg = document.getElementById('story-thumbnail');
+            if (thumbImg && thumbImg.src) {
+                lightboxImages.push(thumbImg.src);
+                thumbImg.dataset.index = 0;
+                thumbImg.addEventListener('click', () => openLightbox(0));
+            }
+
+            // Gather all other images (Quill + Gallery)
+            const allImages = document.querySelectorAll('.quill-content img, .gal-img');
+            
+            allImages.forEach((img) => {
+                lightboxImages.push(img.src);
+                const index = lightboxImages.length - 1;
+                img.dataset.index = index;
+                img.addEventListener('click', () => openLightbox(index));
+            });
+        }
+
+        function openLightbox(index) {
+            currentLbIndex = index;
+            updateLightboxImg();
+            lightbox.classList.remove('hidden');
+            setTimeout(() => lightbox.classList.remove('opacity-0'), 10);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function updateLightboxImg() {
+            lbImg.src = lightboxImages[currentLbIndex];
+        }
+
+        function closeLightbox() {
+            lightbox.classList.add('opacity-0');
+            setTimeout(() => { lightbox.classList.add('hidden'); document.body.style.overflow = 'auto'; }, 300);
+        }
+
+        document.getElementById('lb-close').addEventListener('click', closeLightbox);
+        lightbox.addEventListener('click', (e) => { if(e.target === lightbox || e.target.tagName !== 'IMG') closeLightbox(); });
+        document.addEventListener('keydown', (e) => {
+            if(!lightbox.classList.contains('hidden')) {
+                if(e.key === 'Escape') closeLightbox();
+                if(e.key === 'ArrowLeft' && currentLbIndex > 0) { currentLbIndex--; updateLightboxImg(); }
+                if(e.key === 'ArrowRight' && currentLbIndex < lightboxImages.length - 1) { currentLbIndex++; updateLightboxImg(); }
+            }
+        });
+        document.getElementById('lb-prev').addEventListener('click', (e) => { e.stopPropagation(); if(currentLbIndex > 0) { currentLbIndex--; updateLightboxImg(); } });
+        document.getElementById('lb-next').addEventListener('click', (e) => { e.stopPropagation(); if(currentLbIndex < lightboxImages.length - 1) { currentLbIndex++; updateLightboxImg(); } });
+
+        fetchStory();
+    </script>
+</body>
+</html>
