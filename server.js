@@ -29,7 +29,7 @@ const imagekit = new ImageKit({
 });
 
 // Limit ditingkatkan menjadi 50mb untuk mengakomodasi upload multi-gambar gallery stories
-app.use(express.json({ limit: '50mb' })); 
+app.use(express.json({ limit: '5mb' })); 
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(cookieParser());
 app.disable('x-powered-by'); 
