@@ -12,7 +12,38 @@
         tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'] }, colors: { sblue: { 50: '#E3F2FD', 200: '#90CAF9', 500: '#2196F3', 900: '#0D47A1' }, rpurple: { 100: '#FFC0DE', 300: '#ED96D7', 500: '#C654C3', 700: '#8E1EA2' } } } } }
     </script>
     <style>
-        .ql-editor { min-height: 300px; font-size: 11pt; font-family: 'Inter', sans-serif; line-height: 1.6; }
+        /* Typography & Spacing selaras dengan Medium / Filament RichEditor */
+        .ql-editor {
+            min-height: 300px;
+            font-size: 11pt;
+            font-family: 'Inter', sans-serif;
+            line-height: 1.8;
+            color: #1f2937;
+            padding: 1.25rem 1.5rem;
+        }
+        .ql-editor > :first-child { margin-top: 0 !important; }
+        .ql-editor p { margin-bottom: 1.15em; }
+        .ql-editor p:last-child { margin-bottom: 0; }
+        .ql-editor p:has(> br:only-child),
+        .ql-editor p:empty {
+            min-height: 0.65em;
+            margin-bottom: 0.5em;
+        }
+        .ql-editor h1 { font-size: 1.65rem; font-weight: 700; line-height: 1.3; margin: 1.5em 0 0.5em; }
+        .ql-editor h2 { font-size: 1.35rem; font-weight: 600; line-height: 1.35; margin: 1.35em 0 0.5em; }
+        .ql-editor h3 { font-size: 1.15rem; font-weight: 600; line-height: 1.4; margin: 1.2em 0 0.45em; }
+        .ql-editor ul, .ql-editor ol { margin-bottom: 1.15em; padding-left: 1.5rem; }
+        .ql-editor li { margin-bottom: 0.35em; }
+        .ql-editor blockquote {
+            border-left: 3px solid #90CAF9;
+            background: #f8fafc;
+            padding: 0.75rem 1rem;
+            margin: 1.25em 0;
+            border-radius: 0 0.5rem 0.5rem 0;
+            color: #4b5563;
+            font-style: italic;
+        }
+        .ql-editor img { max-width: 100%; height: auto; border-radius: 0.75rem; margin: 1.25em 0; }
         .ql-container.ql-snow { border-radius: 0 0 0.5rem 0.5rem; }
         .ql-toolbar.ql-snow { border-radius: 0.5rem 0.5rem 0 0; background: #f9fafb; }
         #toast-container { position: fixed; top: 1rem; right: 1rem; z-index: 100; display: flex; flex-direction: column; gap: 0.5rem; }
@@ -22,7 +53,6 @@
     
     <div id="toast-container"></div>
     <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-20 hidden lg:hidden"></div>
-
     <aside id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-white border-r border-sblue-100 z-30 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 flex flex-col">
         <div class="h-16 flex items-center justify-center border-b border-sblue-100"><h2 class="text-xl font-bold text-sblue-900">Scrapbook Admin</h2></div>
         <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
@@ -36,7 +66,6 @@
             <a href="/admin/create-song" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-sblue-50 hover:text-sblue-600 rounded-lg font-medium transition-colors"><i class="fas fa-music w-5 text-center"></i> Songs</a>
         </nav>
     </aside>
-
     <main class="flex-1 flex flex-col h-full lg:ml-64 w-full relative">
         <header class="h-16 bg-white border-b border-sblue-100 flex items-center justify-between px-4 sm:px-6 z-10">
             <div class="flex items-center gap-4">
@@ -45,7 +74,6 @@
             </div>
             <button onclick="openFormModal()" class="bg-sblue-500 hover:bg-sblue-900 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm"><i class="fas fa-plus mr-1"></i> Add Story</button>
         </header>
-
         <div class="flex-1 overflow-auto p-4 sm:p-6">
             <div class="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
                 <div class="overflow-x-auto">
@@ -69,7 +97,6 @@
                 </div>
             </div>
         </div>
-
         <div id="form-modal" class="fixed inset-0 bg-black/60 z-50 hidden flex justify-end">
             <div class="bg-white w-full max-w-4xl h-full flex flex-col shadow-2xl overflow-hidden relative">
                 <div class="p-6 border-b flex justify-between items-center bg-gray-50">
@@ -85,25 +112,23 @@
                             <div><label class="block text-sm font-medium mb-1">Title *</label><input type="text" id="input-title" required class="w-full border rounded-lg px-3 py-2 outline-none"></div>
                             <div><label class="block text-sm font-medium mb-1">Slug *</label><input type="text" id="input-slug" required class="w-full border rounded-lg px-3 py-2 outline-none bg-gray-50"></div>
                         </div>
-
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div><label class="block text-sm font-medium mb-1">Event Date *</label><input type="date" id="input-date" required class="w-full border rounded-lg px-3 py-2 outline-none"></div>
                             <div><label class="block text-sm font-medium mb-1">Status</label><select id="input-status" class="w-full border rounded-lg px-3 py-2 outline-none"><option value="draft">Draft</option><option value="published">Published</option></select></div>
                         </div>
-
                         <div>
                             <label class="block text-sm font-medium mb-1">Main Thumbnail <span id="thumb-req" class="text-red-500">*</span></label>
                             <input type="file" id="input-thumbnail" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-sblue-50 file:text-sblue-600 cursor-pointer">
                             <div id="thumb-preview-container" class="mt-2 hidden"><img id="thumb-preview" src="" class="h-32 object-cover rounded-lg border"></div>
                         </div>
-
                         <div><label class="block text-sm font-medium mb-1">Short Description *</label><textarea id="input-short-desc" required rows="2" class="w-full border rounded-lg px-3 py-2 outline-none"></textarea></div>
-
                         <div>
-                            <label class="block text-sm font-medium mb-1">Story Content *</label>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="block text-sm font-medium">Story Content *</label>
+                                <span class="text-xs text-gray-400">Enter: Paragraf baru &bull; Shift+Enter: Baris baru</span>
+                            </div>
                             <div id="quill-editor"></div>
                         </div>
-
                         <!-- NEW: Optional Gallery Section -->
                         <div class="p-5 bg-sblue-50/50 rounded-xl border border-sblue-100">
                             <label class="block text-sm font-bold text-sblue-900 mb-2">Optional Gallery Images <span class="text-xs font-normal text-gray-500">(Displayed below story content)</span></label>
@@ -130,7 +155,6 @@
                 </div>
             </div>
         </div>
-
         <div id="confirm-modal" class="fixed inset-0 bg-black/60 z-[60] hidden items-center justify-center p-4">
             <div class="bg-white rounded-xl p-6 text-center w-80 shadow-xl">
                 <i class="fas fa-trash-alt text-4xl text-red-500 mb-4"></i><h3 class="text-xl font-bold mb-2">Delete Story?</h3>
@@ -138,16 +162,131 @@
             </div>
         </div>
     </main>
-
     <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
     <script>
         const toast = (msg, isErr=false) => { const t = document.createElement('div'); t.className = `px-4 py-3 rounded shadow-lg text-white text-sm font-medium ${isErr?'bg-red-600':'bg-green-600'}`; t.innerHTML = `<i class="fas ${isErr?'fa-exclamation-circle':'fa-check-circle'}"></i> ${msg}`; document.getElementById('toast-container').appendChild(t); setTimeout(() => { t.remove(); }, 3000); };
         const fileToBase64 = (file) => new Promise((resolve) => { const r = new FileReader(); r.readAsDataURL(file); r.onload = () => resolve(r.result); });
-
         document.getElementById('mobile-menu-btn').addEventListener('click', () => { document.getElementById('sidebar').classList.remove('-translate-x-full'); document.getElementById('sidebar-overlay').classList.remove('hidden'); });
         document.getElementById('sidebar-overlay').addEventListener('click', () => { document.getElementById('sidebar').classList.add('-translate-x-full'); document.getElementById('sidebar-overlay').classList.add('hidden'); });
 
-        const quill = new Quill('#quill-editor', { theme: 'snow', modules: { toolbar: { container: [ [{ 'header': [1, 2, 3, false] }], ['bold', 'italic', 'underline'], [{ 'list': 'ordered'}, { 'list': 'bullet' }], [{ 'align': [] }], ['blockquote', 'link', 'image'], ['clean'] ], handlers: { image: imageHandler } } } });
+        // SoftBreak Blot untuk Shift+Enter (baris baru dalam 1 paragraf seperti Medium / Filament)
+        const Embed = Quill.import('blots/embed');
+        class SoftBreak extends Embed {
+            static create() {
+                return document.createElement('br');
+            }
+            static value() {
+                return '\n';
+            }
+        }
+        SoftBreak.blotName = 'softbreak';
+        SoftBreak.tagName = 'BR';
+        SoftBreak.className = 'ql-softbreak';
+        Quill.register(SoftBreak, true);
+
+        const quill = new Quill('#quill-editor', {
+            theme: 'snow',
+            modules: {
+                clipboard: {
+                    matchVisual: false
+                },
+                keyboard: {
+                    bindings: {
+                        softbreak: {
+                            key: 13,
+                            shiftKey: true,
+                            handler: function(range) {
+                                this.quill.insertEmbed(range.index, 'softbreak', true, Quill.sources.USER);
+                                this.quill.setSelection(range.index + 1, Quill.sources.SILENT);
+                                return false;
+                            }
+                        }
+                    }
+                },
+                toolbar: {
+                    container: [
+                        [{ 'header': [1, 2, 3, false] }],
+                        ['bold', 'italic', 'underline'],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        [{ 'align': [] }],
+                        ['blockquote', 'link', 'image'],
+                        ['clean']
+                    ],
+                    handlers: { image: imageHandler }
+                }
+            }
+        });
+
+        // Normalisasi HTML editor agar breakspace/enter tidak bablas & rapi seperti Medium/Filament
+        function isEmptyParagraphNode(node) {
+            if (!node || node.nodeType !== Node.ELEMENT_NODE || node.tagName !== 'P') return false;
+            if (node.querySelector('img, iframe, video')) return false;
+            const text = (node.textContent || '').replace(/[\u00A0\u200B\s]/g, '');
+            return text.length === 0;
+        }
+
+        function normalizeStoryHtml(rawHtml) {
+            const doc = new DOMParser().parseFromString(rawHtml || '', 'text/html');
+            const body = doc.body;
+
+            // 1. Bersihkan <br> berlebih di dalam setiap paragraf/blok
+            body.querySelectorAll('p, blockquote, li, h1, h2, h3').forEach(el => {
+                if (isEmptyParagraphNode(el)) {
+                    el.innerHTML = '<br>';
+                    return;
+                }
+                // Hapus <br> nyasar di akhir paragraf tepat sebelum </p>
+                while (el.lastChild && el.lastChild.nodeName === 'BR') {
+                    el.removeChild(el.lastChild);
+                }
+                // Batasi maksimal 2 <br> berturut-turut di dalam satu paragraf
+                let brStreak = 0;
+                Array.from(el.childNodes).forEach(child => {
+                    if (child.nodeName === 'BR') {
+                        brStreak++;
+                        if (brStreak > 2) child.remove();
+                    } else if (child.nodeType !== Node.TEXT_NODE || child.textContent.trim() !== '') {
+                        brStreak = 0;
+                    }
+                });
+            });
+
+            // 2. Hapus paragraf kosong di paling awal & paling akhir artikel
+            while (body.firstElementChild && isEmptyParagraphNode(body.firstElementChild)) {
+                body.removeChild(body.firstElementChild);
+            }
+            while (body.lastElementChild && isEmptyParagraphNode(body.lastElementChild)) {
+                body.removeChild(body.lastElementChild);
+            }
+
+            // 3. Gabungkan paragraf kosong beruntun (Enter berkali-kali) menjadi maksimal 1 jeda
+            let prevWasEmpty = false;
+            Array.from(body.children).forEach(child => {
+                if (isEmptyParagraphNode(child)) {
+                    if (prevWasEmpty) {
+                        child.remove();
+                    } else {
+                        prevWasEmpty = true;
+                    }
+                } else {
+                    prevWasEmpty = false;
+                }
+            });
+
+            return body.innerHTML;
+        }
+
+        // Siapkan HTML dari database agar SoftBreak (<br> dalam paragraf) tetap dikenali Quill saat Edit
+        function prepareHtmlForEditor(rawHtml) {
+            const normalized = normalizeStoryHtml(rawHtml);
+            const doc = new DOMParser().parseFromString(normalized, 'text/html');
+            doc.body.querySelectorAll('p').forEach(p => {
+                if (!isEmptyParagraphNode(p)) {
+                    p.querySelectorAll('br').forEach(br => br.classList.add('ql-softbreak'));
+                }
+            });
+            return doc.body.innerHTML;
+        }
 
         async function imageHandler() {
             const input = document.createElement('input'); input.setAttribute('type', 'file'); input.setAttribute('accept', 'image/*'); input.click();
@@ -161,18 +300,14 @@
                 } catch (e) { toast('Upload failed', true); }
             };
         }
-
         document.getElementById('input-title').addEventListener('input', function() { if(!document.getElementById('edit-id').value) document.getElementById('input-slug').value = this.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''); });
-
         let thumbBase64 = null;
         document.getElementById('input-thumbnail').addEventListener('change', async (e) => {
             if(e.target.files[0]) { thumbBase64 = await fileToBase64(e.target.files[0]); document.getElementById('thumb-preview').src = thumbBase64; document.getElementById('thumb-preview-container').classList.remove('hidden'); }
         });
-
         // --- NEW GALLERY LOGIC ---
         let newGalleryImages = [];
         let deletedGalleryIds = [];
-
         document.getElementById('input-gallery').addEventListener('change', async (e) => {
             const files = Array.from(e.target.files);
             if(files.length === 0) return;
@@ -186,7 +321,6 @@
             renderNewGallery();
             document.getElementById('input-gallery').value = ''; // Reset input
         });
-
         function renderNewGallery() {
             const container = document.getElementById('new-gallery-container');
             container.innerHTML = newGalleryImages.map((img, idx) => `
@@ -196,17 +330,13 @@
                 </div>
             `).join('');
         }
-
         window.removeNewGallery = (idx) => { newGalleryImages.splice(idx, 1); renderNewGallery(); };
-
         window.removeExistingGallery = (id, elId) => {
             deletedGalleryIds.push(id);
             document.getElementById(elId).style.display = 'none';
         };
         // ------------------------
-
         let currentPage = 1, limit = 10, deleteId = null;
-
         async function loadData() {
             try {
                 const res = await fetch(`/api/admin/stories?page=${currentPage}&limit=${limit}`); const data = await res.json();
@@ -227,7 +357,6 @@
             } catch(e) {}
         }
         function changePage(d) { if(d === -1 && currentPage > 1) { currentPage--; loadData(); } else if(d === 1) { currentPage++; loadData(); } }
-
         function openFormModal() {
             document.getElementById('edit-id').value = ''; document.getElementById('data-form').reset();
             quill.root.innerHTML = ''; thumbBase64 = null; document.getElementById('thumb-preview-container').classList.add('hidden');
@@ -236,17 +365,16 @@
             newGalleryImages = []; deletedGalleryIds = []; renderNewGallery();
             document.getElementById('existing-gallery-container').classList.add('hidden');
             document.getElementById('existing-gallery-container').innerHTML = '';
-
             document.getElementById('form-modal').classList.remove('hidden');
         }
         function closeFormModal() { document.getElementById('form-modal').classList.add('hidden'); }
-
         async function editData(id) {
             toast('Loading...');
             const res = await fetch(`/api/admin/stories/${id}`); const data = await res.json();
             if(data.success) {
                 const s = data.data;
-                document.getElementById('edit-id').value = s.id; document.getElementById('input-title').value = s.title; document.getElementById('input-slug').value = s.slug; document.getElementById('input-date').value = s.event_date.split('T')[0]; document.getElementById('input-status').value = s.status; document.getElementById('input-short-desc').value = s.short_description; quill.root.innerHTML = s.content_html;
+                document.getElementById('edit-id').value = s.id; document.getElementById('input-title').value = s.title; document.getElementById('input-slug').value = s.slug; document.getElementById('input-date').value = s.event_date.split('T')[0]; document.getElementById('input-status').value = s.status; document.getElementById('input-short-desc').value = s.short_description;
+                quill.root.innerHTML = prepareHtmlForEditor(s.content_html);
                 document.getElementById('thumb-preview').src = s.thumbnail_url; document.getElementById('thumb-preview-container').classList.remove('hidden');
                 document.getElementById('modal-title').textContent = 'Edit Story'; document.getElementById('thumb-req').classList.add('hidden'); document.getElementById('input-thumbnail').required = false; thumbBase64 = null;
                 
@@ -263,33 +391,28 @@
                 } else {
                     existCont.classList.add('hidden'); existCont.innerHTML = '';
                 }
-
                 document.getElementById('form-modal').classList.remove('hidden');
             }
         }
-
         async function saveData() {
-            const id = document.getElementById('edit-id').value, title = document.getElementById('input-title').value, slug = document.getElementById('input-slug').value, date = document.getElementById('input-date').value, status = document.getElementById('input-status').value, shortDesc = document.getElementById('input-short-desc').value, content = quill.root.innerHTML;
+            const id = document.getElementById('edit-id').value, title = document.getElementById('input-title').value, slug = document.getElementById('input-slug').value, date = document.getElementById('input-date').value, status = document.getElementById('input-status').value, shortDesc = document.getElementById('input-short-desc').value;
+            const content = normalizeStoryHtml(quill.root.innerHTML);
             if(!title || !slug || !date || !shortDesc || quill.getText().trim() === '') return toast('Required fields missing', true);
             if(!id && !thumbBase64) return toast('Thumbnail required', true);
-
             const payload = { title, slug, event_date: date, status, short_description: shortDesc, content_html: content };
             if(thumbBase64) payload.imageBase64 = thumbBase64;
             
             if(newGalleryImages.length > 0) payload.newGalleryImages = newGalleryImages.map(img => img.base64);
             if(deletedGalleryIds.length > 0) payload.deletedGalleryIds = deletedGalleryIds;
-
             const btn = document.getElementById('btn-save'); btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
             try {
                 const res = await fetch(id ? `/api/admin/stories/${id}` : '/api/admin/stories', { method: id ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                 if((await res.json()).success) { toast('Saved!'); closeFormModal(); loadData(); }
             } catch(e) { toast('Error saving data', true); } finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Save Story'; }
         }
-
         function confirmDelete(id) { deleteId = id; document.getElementById('confirm-modal').classList.remove('hidden'); document.getElementById('confirm-modal').classList.add('flex'); }
         function closeConfirmModal() { document.getElementById('confirm-modal').classList.add('hidden'); document.getElementById('confirm-modal').classList.remove('flex'); }
         document.getElementById('btn-confirm-delete').addEventListener('click', async () => { await fetch(`/api/admin/stories/${deleteId}`, { method: 'DELETE' }); closeConfirmModal(); loadData(); toast('Deleted'); });
-
         loadData();
     </script>
 </body>
